@@ -30,7 +30,7 @@ class Utilisateur extends Authenticatable
      */
     protected $hidden = [
         'password',
-        // 'remember_token',
+        'remember_token',
     ];
 
     /**
@@ -42,7 +42,12 @@ class Utilisateur extends Authenticatable
     {
         return [
             'password' => 'hashed',
-            // 'email_verified_at' => 'datetime',
+            'email_verified_at' => 'datetime',
         ];
+    }
+
+    public function projets()
+    {
+        return $this->hasMany(Projet::class, 'owner_id', 'id_utilisateur');
     }
 }

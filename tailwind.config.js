@@ -14,6 +14,26 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                primary: {
+                    100: 'hsl(var(--primary-100) / <alpha-value>)',
+                    300: 'hsl(var(--primary-300) / <alpha-value>)',
+                    500: 'hsl(var(--primary-500) / <alpha-value>)',
+                    700: 'hsl(var(--primary-700) / <alpha-value>)',
+                    900: 'hsl(var(--primary-900) / <alpha-value>)',
+                },
+                secondary: {
+                    100: 'hsl(var(--secondary-100) / <alpha-value>)',
+                    300: 'hsl(var(--secondary-300) / <alpha-value>)',
+                    500: 'hsl(var(--secondary-500) / <alpha-value>)',
+                    700: 'hsl(var(--secondary-700) / <alpha-value>)',
+                    900: 'hsl(var(--secondary-900) / <alpha-value>)',
+                },
+                surface: 'hsl(var(--surface) / <alpha-value>)',
+                dark: 'hsl(var(--text-1) / <alpha-value>)',
+                light: 'hsl(var(--text-2) / <alpha-value>)',
+                accent:  'hsl(var(--accent) / <alpha-value>)',
+            },
         },
     },
 

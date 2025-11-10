@@ -1,5 +1,9 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
+<x-auth-layout>
+    <div class="text-center mb-8">
+        <h1 class="text-5xl font-bold">Welcome!</h1>
+        <p class="mt-10">Create your account to start managing your projects with ease</p>
+    </div>
+    <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf
 
         <!-- First name -->
@@ -31,6 +35,7 @@
                             type="password"
                             name="password"
                             required autocomplete="new-password" />
+            <p class="text-xs text-gray-500 mt-1">Min. 8 chars, 1 uppercase, 1 number, 1 symbol</p>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -46,14 +51,14 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex flex-col items-center space-y-3 mt-6">
+            <x-primary-button class="px-20 py-3 text-lg">
+                {{ __('Register') }}
+            </x-primary-button>
+
             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
         </div>
     </form>
-</x-guest-layout>
+</x-auth-layout>
