@@ -16,7 +16,7 @@ return new class extends Migration
             $t->foreignId('id_projet')->constrained('projet', 'id_projet')->cascadeOnDelete();
             $t->foreignId('id_epic')->constrained('epic', 'id_epic');
             $t->foreignId('id_sprint')->constrained('sprint', 'id_sprint');
-            $t->foreignId('id_utilisateur')->constrained('utilisateur', 'id_utilisateur');
+            $t->foreignId('id_utilisateur')->nullable()->constrained('utilisateur', 'id_utilisateur')->nullOnDelete();
             $t->string('titre');
             $t->text('description')->nullable();
             $t->date('deadline')->nullable();

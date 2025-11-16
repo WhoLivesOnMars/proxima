@@ -11,7 +11,7 @@ class Tache extends Model
 
     protected $fillable = [
         'id_projet','id_epic','id_sprint','id_utilisateur',
-        'titre','description','start_date','deadline','status'
+        'titre','description','start_date','deadline','status', 'attachment_path'
     ];
 
     protected $casts = [
