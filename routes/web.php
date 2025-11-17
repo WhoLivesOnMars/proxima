@@ -6,6 +6,7 @@ use App\Http\Controllers\SprintController;
 use App\Http\Controllers\EpicController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\KanbanController;
+use App\Http\Controllers\RoadmapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
