@@ -10,6 +10,8 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body
     x-data="{ collapsed: true }"
@@ -58,5 +60,7 @@
             });
         });
     </script>
+
+    @stack('scripts')
 </body>
 </html>
