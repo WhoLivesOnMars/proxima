@@ -29,16 +29,8 @@
             </div>
         </aside>
 
-        <header class="col-[2] row-[1] h-14 bg-primary-100 backdrop-blur">
-            <div class="h-full px-4 flex items-center gap-4">
-                <div class="text-xl font-semibold select-none">Logo</div>
-
-                <div class="ml-auto relative flex-none w-72 sm:w-80 md:w-96">
-                    <input type="search" placeholder="Search"
-                    class="w-full rounded-2xl border border-primary-300 bg-white pe-9 h-10"/>
-                    <x-heroicon-o-magnifying-glass class="w-5 h-5 absolute right-2 top-1/2 -translate-y-1/2 text-primary-500"/>
-                </div>
-            </div>
+        <header class="py-3 px-4 flex items-center bg-primary-100 backdrop-blur">
+            <div class="text-xl font-semibold select-none">Logo</div>
         </header>
 
         <main class="col-[2] row-[2] bg-surface overflow-y-auto p-6">

@@ -5,6 +5,8 @@
       showMoveSub:false, showAssignSub:false,
       currentAssignee:'—',
 
+      openFilter:false,
+
       modalOpen: @entangle('modalOpen'),
       modalTitre: @entangle('modalTitre'),
       modalDescription: @entangle('modalDescription'),
@@ -44,7 +46,7 @@
     @keydown.window.escape="closeMenu()"
     class="space-y-6"
 >
-    <div class="flex items-start justify-between">
+    <div class="flex items-end justify-between">
         <div class="space-y-1">
             <div class="relative" x-data="{open:false}">
                 <button type="button"
@@ -74,10 +76,62 @@
             </div>
         </div>
 
-        <button type="button" class="flex items-center gap-2 text-sm text-slate-600">
-            <x-heroicon-o-funnel class="w-4 h-4" />
-            <span>Filter</span>
-        </button>
+        <div class="relative">
+            <button type="button"
+                    class="inline-flex items-center gap-2 text-secondary-900"
+                    @click="openFilter = !openFilter">
+                <x-heroicon-o-funnel class="w-5 h-5" />
+                <span>Filter</span>
+            </button>
+
+            <div x-show="openFilter"
+                 x-transition
+                 @click.outside="openFilter = false"
+                 class="absolute right-0 mt-2 w-[28rem] bg-white rounded-md shadow border p-4 z-50">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm mb-1">Assignee</label>
+                        <select wire:model.defer="filters.assignee" class="w-full h-10 px-3 rounded-md border text-sm">
+                            <option value="">Any</option>
+                            @foreach($assigneeOptions as $uid => $uname)
+                                <option value="{{ $uid }}">{{ $uname }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Status</label>
+                        <select wire:model.defer="filters.status" class="w-full h-10 px-3 rounded-md border text-sm">
+                            <option value="">Any</option>
+                            <option value="todo">To do</option>
+                            <option value="in_progress">In progress</option>
+                            <option value="done">Done</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Start from</label>
+                        <input type="date" wire:model.defer="filters.date_from" class="w-full h-10 px-3 rounded-md border text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Deadline to</label>
+                        <input type="date" wire:model.defer="filters.date_to" class="w-full h-10 px-3 rounded-md border text-sm">
+                    </div>
+                </div>
+                <div class="pt-3 flex items-center gap-2">
+                    <button type="button"
+                            class="px-4 py-2 rounded text-sm border"
+                            wire:click="resetFilters"
+                            @click="openFilter = false">
+                        Reset
+                    </button>
+                    <button type="button"
+                            class="px-4 py-2 rounded text-sm bg-primary-500 hover:bg-primary-700 text-white"
+                            wire:click="applyFilters"
+                            @click="openFilter = false">
+                        Apply
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="grid grid-cols-4 gap-8 items-start w-full">

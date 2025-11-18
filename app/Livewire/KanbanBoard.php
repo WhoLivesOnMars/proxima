@@ -33,8 +33,14 @@ class KanbanBoard extends Component
     public ?int $openTaskId = null;
 
     public array $assigneeOptions = [];
-
     public array $epicOptions = [];
+
+    public array $filters = [
+        'assignee' => '',
+        'status' => '',
+        'date_from' => null,
+        'date_to' => null,
+    ];
 
     public bool $modalOpen = false;
     public ?int $modalTaskId = null;
@@ -42,9 +48,7 @@ class KanbanBoard extends Component
     public ?string $modalDescription = null;
     public ?string $modalDeadline = null;
     public $modalAssigneeId = null;
-
     public ?string $modalAttachmentPath = null;
-
     public $modalEpicId = null;
     public ?string $modalStartDate = null;
 
@@ -76,6 +80,12 @@ class KanbanBoard extends Component
             $this->tasksByStatus = [];
             $this->assigneeOptions = [];
             $this->epicOptions = [];
+            $this->filters = [
+                'assignee' => '',
+                'status' => '',
+                'date_from' => null,
+                'date_to' => null,
+            ];
             return;
         }
 
@@ -94,7 +104,7 @@ class KanbanBoard extends Component
 
         $this->buildEpicOptions($project);
 
-        $this->loadTasks();
+        $this->resetFilters();
     }
 
     protected function buildAssigneeOptions(?Projet $project): void
@@ -121,7 +131,7 @@ class KanbanBoard extends Component
             ->get();
 
         foreach ($members as $m) {
-            $list[$m->id_utilisateur] = trim(($m->prenom ?? '') . ' ' . ($m->nom ?? ''));
+            $list[$m->id_utilisateur] = trim(($м->prenom ?? '') . ' ' . ($м->nom ?? ''));
         }
 
         $this->assigneeOptions = $list;
@@ -143,6 +153,22 @@ class KanbanBoard extends Component
             ->toArray();
     }
 
+    public function applyFilters(): void
+    {
+        $this->loadTasks();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filters = [
+            'assignee' => '',
+            'status' => '',
+            'date_from' => null,
+            'date_to' => null,
+        ];
+        $this->loadTasks();
+    }
+
     protected function loadTasks(): void
     {
         $this->tasksByStatus = [
@@ -156,10 +182,26 @@ class KanbanBoard extends Component
             return;
         }
 
-        $tasks = Tache::with(['epic', 'assignee'])
-            ->where('id_sprint', $this->currentSprintId)
-            ->orderBy('created_at')
-            ->get();
+        $q = Tache::with(['epic', 'assignee'])
+            ->where('id_sprint', $this->currentSprintId);
+
+        if (!empty($this->filters['assignee'])) {
+            $q->where('id_utilisateur', $this->filters['assignee']);
+        }
+
+        if (!empty($this->filters['status'])) {
+            $q->where('status', $this->filters['status']);
+        }
+
+        if (!empty($this->filters['date_from'])) {
+            $q->whereDate('start_date', '>=', $this->filters['date_from']);
+        }
+
+        if (!empty($this->filters['date_to'])) {
+            $q->whereDate('deadline', '<=', $this->filters['date_to']);
+        }
+
+        $tasks = $q->orderBy('created_at')->get();
 
         foreach ($tasks as $task) {
             $status = $task->status ?: 'todo';
@@ -353,19 +395,18 @@ class KanbanBoard extends Component
         $t = Tache::with('assignee')->findOrFail($taskId);
         Gate::authorize('view', $t);
 
-        $this->modalTaskId      = $t->id_tache;
-        $this->modalTitre       = $t->titre ?? '';
+        $this->modalTaskId = $t->id_tache;
+        $this->modalTitre = $t->titre ?? '';
         $this->modalDescription = $t->description;
-        $this->modalDeadline    = $t->deadline?->format('Y-m-d');
+        $this->modalDeadline = $t->deadline?->format('Y-m-d');
         $this->modalAssigneeId  = $t->id_utilisateur;
 
-        $this->modalEpicId      = $t->id_epic;
-        $this->modalStartDate   = $t->start_date
+        $this->modalEpicId = $t->id_epic;
+        $this->modalStartDate = $t->start_date
             ? Carbon::parse($t->start_date)->format('Y-m-d')
             : null;
 
         $this->modalAttachmentPath = $t->attachment_path;
-
         $this->modalAttachment = null;
 
         $this->modalOpen = true;
@@ -456,6 +497,7 @@ class KanbanBoard extends Component
         $this->modalAttachment = null;
 
         $this->modalOpen = false;
+
         $this->loadTasks();
         $this->dispatch('kanban-info', message: 'Card saved.');
     }
@@ -499,7 +541,7 @@ class KanbanBoard extends Component
 
         return view('livewire.kanban-board', [
             'currentProject' => $currentProject,
-            'currentSprint'  => $currentSprint,
+            'currentSprint' => $currentSprint,
         ]);
     }
 }

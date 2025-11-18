@@ -4,36 +4,27 @@
     }"
     class="space-y-6"
 >
-    <div class="flex items-start justify-between">
-        <div class="space-y-1">
-            <div class="relative" x-data="{open:false}">
-                <button type="button"
-                        class="inline-flex items-center gap-1 font-bold text-xl uppercase tracking-wide"
-                        @click="open = !open">
-                    {{ $currentProject?->nom ?? 'Select project' }}
-                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.25 7.5 10 12.25 14.75 7.5h-9.5Z"/></svg>
-                </button>
-
-                <div x-show="open"
-                     x-transition
-                     @click.outside="open = false"
-                     class="absolute mt-2 w-56 bg-white rounded-md shadow border z-30">
-                    @foreach($projects as $proj)
-                        <button type="button"
-                                wire:click="selectProject({{ $proj->id_projet }})"
-                                @click="open = false"
-                                class="w-full text-left px-4 py-2 text-sm hover:bg-slate-100 {{ $currentProject && $currentProject->id_projet === $proj->id_projet ? 'font-semibold' : '' }}">
-                            {{ $proj->nom }}
-                        </button>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <button type="button" class="flex items-center gap-2 text-sm text-slate-600">
-            <x-heroicon-o-funnel class="w-4 h-4" />
-            <span>Filter</span>
+    <div class="relative" x-data="{open:false}">
+        <button type="button"
+                class="inline-flex items-center gap-1 font-bold text-xl uppercase tracking-wide"
+                @click="open = !open">
+            {{ $currentProject?->nom ?? 'Select project' }}
+            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.25 7.5 10 12.25 14.75 7.5h-9.5Z"/></svg>
         </button>
+
+        <div x-show="open"
+                x-transition
+                @click.outside="open = false"
+                class="absolute mt-2 w-56 bg-white rounded-md shadow border z-30">
+            @foreach($projects as $proj)
+                <button type="button"
+                        wire:click="selectProject({{ $proj->id_projet }})"
+                        @click="open = false"
+                        class="w-full text-left px-4 py-2 text-sm hover:bg-slate-100 {{ $currentProject && $currentProject->id_projet === $proj->id_projet ? 'font-semibold' : '' }}">
+                    {{ $proj->nom }}
+                </button>
+            @endforeach
+        </div>
     </div>
 
     <div class="w-full overflow-x-auto">

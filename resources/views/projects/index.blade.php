@@ -14,39 +14,60 @@
             route-name="projects.index"
         />
 
-        <x-filter.panel :action="route('projects.index')" :persist="['scope']" width="w-[28rem]">
-            <div>
-                <label class="block text-sm mb-1">Status</label>
-                <select name="status" class="w-full h-10 px-3 rounded-md border text-sm">
-                    <option value="">Any</option>
-                    @foreach (['active','completed'] as $s)
-                        <option value="{{ $s }}" @selected(request('status')===$s)>{{ ucfirst($s) }}</option>
-                    @endforeach
-                </select>
-            </div>
+        <div class="flex items-center gap-3">
+            <form method="GET" action="{{ route('projects.index') }}" class="relative flex-none w-64 sm:w-72">
+                @foreach (['scope','status','visibility','created_from','created_to'] as $keep)
+                    @if (request()->filled($keep))
+                        <input type="hidden" name="{{ $keep }}" value="{{ request($keep) }}">
+                    @endif
+                @endforeach
 
-            <div>
-                <label class="block text-sm mb-1">Visibility</label>
-                <select name="visibility" class="w-full h-10 px-3 rounded-md border text-sm">
-                    <option value="">Any</option>
-                    @foreach (['private','shared','public'] as $v)
-                        <option value="{{ $v }}" @selected(request('visibility')===$v)>{{ ucfirst($v) }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ request('q') }}"
+                    placeholder="Search projects"
+                    class="w-full rounded-2xl border border-primary-300 bg-white pe-9 h-10 text-sm"
+                />
+                <x-heroicon-o-magnifying-glass
+                    class="w-5 h-5 absolute right-2 top-1/2 -translate-y-1/2 text-primary-500"
+                />
+            </form>
 
-            <div>
-                <label class="block text-sm mb-1">Created from</label>
-                <input type="date" name="created_from" value="{{ request('created_from') }}"
-                       class="w-full h-10 px-3 rounded-md border text-sm">
-            </div>
+            <x-filter.panel :action="route('projects.index')" :persist="['scope']" width="w-[28rem]">
+                <div>
+                    <label class="block text-sm mb-1">Status</label>
+                    <select name="status" class="w-full h-10 px-3 rounded-md border text-sm">
+                        <option value="">Any</option>
+                        @foreach (['active','completed'] as $s)
+                            <option value="{{ $s }}" @selected(request('status')===$s)>{{ ucfirst($s) }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div>
-                <label class="block text-sm mb-1">Created to</label>
-                <input type="date" name="created_to" value="{{ request('created_to') }}"
-                       class="w-full h-10 px-3 rounded-md border text-sm">
-            </div>
-        </x-filter.panel>
+                <div>
+                    <label class="block text-sm mb-1">Visibility</label>
+                    <select name="visibility" class="w-full h-10 px-3 rounded-md border text-sm">
+                        <option value="">Any</option>
+                        @foreach (['private','shared','public'] as $v)
+                            <option value="{{ $v }}" @selected(request('visibility')===$v)>{{ ucfirst($v) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-1">Created from</label>
+                    <input type="date" name="created_from" value="{{ request('created_from') }}"
+                        class="w-full h-10 px-3 rounded-md border text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-1">Created to</label>
+                    <input type="date" name="created_to" value="{{ request('created_to') }}"
+                        class="w-full h-10 px-3 rounded-md border text-sm">
+                </div>
+            </x-filter.panel>
+        </div>
     </div>
 
     @if (session('ok'))

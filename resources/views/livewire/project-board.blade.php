@@ -57,59 +57,74 @@
             </div>
         </div>
 
-        <div class="relative">
-            <button type="button"
-                    class="inline-flex items-center gap-2 text-secondary-900"
-                    @click="openFilter = !openFilter">
-                <x-heroicon-o-funnel class="w-5 h-5" />
-                <span>Filter</span>
-            </button>
+        <div class="flex items-center gap-3">
+            <div class="relative flex-none w-64 sm:w-72">
+                <input
+                    type="search"
+                    placeholder="Search tasks"
+                    wire:model.defer="taskSearch"
+                    wire:keydown.enter="applySearch"
+                    class="w-full rounded-2xl border border-primary-300 bg-white pe-9 h-10 text-sm"
+                />
+                <x-heroicon-o-magnifying-glass
+                    class="w-5 h-5 absolute right-2 top-1/2 -translate-y-1/2 text-primary-500"
+                />
+            </div>
 
-            <div x-show="openFilter"
-                 x-transition
-                 @click.outside="openFilter = false"
-                 class="absolute right-0 mt-2 w-[28rem] bg-white rounded-md shadow border p-4 z-50">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm mb-1">Assignee</label>
-                        <select wire:model.defer="filters.assignee" class="w-full h-10 px-3 rounded-md border text-sm">
-                            <option value="">Any</option>
-                            @foreach($assigneeOptions as $uid => $uname)
-                                <option value="{{ $uid }}">{{ $uname }}</option>
-                            @endforeach
-                        </select>
+            <div class="relative">
+                <button type="button"
+                        class="inline-flex items-center gap-2 text-secondary-900"
+                        @click="openFilter = !openFilter">
+                    <x-heroicon-o-funnel class="w-5 h-5" />
+                    <span>Filter</span>
+                </button>
+
+                <div x-show="openFilter"
+                    x-transition
+                    @click.outside="openFilter = false"
+                    class="absolute right-0 mt-2 w-[28rem] bg-white rounded-md shadow border p-4 z-50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm mb-1">Assignee</label>
+                            <select wire:model.defer="filters.assignee" class="w-full h-10 px-3 rounded-md border text-sm">
+                                <option value="">Any</option>
+                                @foreach($assigneeOptions as $uid => $uname)
+                                    <option value="{{ $uid }}">{{ $uname }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1">Status</label>
+                            <select wire:model.defer="filters.status" class="w-full h-10 px-3 rounded-md border text-sm">
+                                <option value="">Any</option>
+                                <option value="todo">To do</option>
+                                <option value="in_progress">In progress</option>
+                                <option value="done">Done</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1">Start from</label>
+                            <input type="date" wire:model.defer="filters.date_from" class="w-full h-10 px-3 rounded-md border text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1">Deadline to</label>
+                            <input type="date" wire:model.defer="filters.date_to" class="w-full h-10 px-3 rounded-md border text-sm">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm mb-1">Status</label>
-                        <select wire:model.defer="filters.status" class="w-full h-10 px-3 rounded-md border text-sm">
-                            <option value="">Any</option>
-                            <option value="todo">To do</option>
-                            <option value="in_progress">In progress</option>
-                            <option value="done">Done</option>
-                        </select>
+                    <div class="pt-3 flex items-center gap-2">
+                        <button type="button"
+                                class="px-4 py-2 rounded text-sm border"
+                                wire:click="resetFilters"
+                                @click="openFilter = false">
+                            Reset
+                        </button>
+                        <button type="button"
+                                class="px-4 py-2 rounded text-sm bg-primary-500 hover:bg-primary-700 text-white"
+                                wire:click="applyFilters"
+                                @click="openFilter = false">
+                            Apply
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-sm mb-1">Start from</label>
-                        <input type="date" wire:model.defer="filters.date_from" class="w-full h-10 px-3 rounded-md border text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm mb-1">Deadline to</label>
-                        <input type="date" wire:model.defer="filters.date_to" class="w-full h-10 px-3 rounded-md border text-sm">
-                    </div>
-                </div>
-                <div class="pt-3 flex items-center gap-2">
-                    <button type="button"
-                            class="px-4 py-2 rounded text-sm border"
-                            wire:click="resetFilters"
-                            @click="openFilter = false">
-                        Reset
-                    </button>
-                    <button type="button"
-                            class="px-4 py-2 rounded text-sm bg-primary-500 hover:bg-primary-700 text-white"
-                            wire:click="applyFilters"
-                            @click="openFilter = false">
-                        Apply
-                    </button>
                 </div>
             </div>
         </div>
@@ -130,7 +145,7 @@
             </thead>
 
             <tbody
-                wire:key="body-{{ $sprintScope ?? 'all' }}-{{ md5(json_encode($appliedFilters)) }}"
+                wire:key="body-{{ $sprintScope ?? 'all' }}-{{ md5(json_encode($appliedFilters)) }}-{{ md5($taskSearch) }}"
                 x-data="{ spOpen: {}, epOpen: {} }"
             >
             @forelse($projet->sprints as $sprint)

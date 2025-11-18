@@ -18,9 +18,10 @@ class ProjetController extends Controller
     {
         $scope = $request->query('scope', 'all');
         $status = $request->query('status');
-        $visibility  = $request->query('visibility');
+        $visibility = $request->query('visibility');
         $createdFrom = $request->query('created_from');
         $createdTo = $request->query('created_to');
+        $search = $request->query('q');
 
         $userId = $request->user()->id_utilisateur;
 
@@ -34,12 +35,12 @@ class ProjetController extends Controller
             });
 
         if ($scope === 'owned') {
-                $q->where('owner_id', $userId);
+            $q->where('owner_id', $userId);
         } elseif ($scope === 'shared') {
-                $q->where('owner_id', '!=', $userId)
-                ->whereHas('members', fn($m) =>
-                    $m->where('membre_projet.id_utilisateur', $userId)
-                );
+            $q->where('owner_id', '!=', $userId)
+              ->whereHas('members', fn($m) =>
+                $m->where('membre_projet.id_utilisateur', $userId)
+            );
         }
 
         if ($status) { $q->where('status', $status); }
@@ -47,9 +48,13 @@ class ProjetController extends Controller
         if ($createdFrom) { $q->whereDate('created_at', '>=', $createdFrom); }
         if ($createdTo) { $q->whereDate('created_at', '<=', $createdTo); }
 
+        if ($search) {
+            $q->where('nom', 'like', '%'.$search.'%');
+        }
+
         $projets = $q->orderByDesc('created_at')->paginate(10)->withQueryString();
 
-        return view('projects.index', compact('projets', 'scope', 'status', 'visibility', 'createdFrom', 'createdTo'));
+        return view('projects.index', compact('projets', 'scope', 'status', 'visibility', 'createdFrom', 'createdTo', 'search'));
     }
 
     /**

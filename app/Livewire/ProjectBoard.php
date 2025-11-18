@@ -20,6 +20,8 @@ class ProjectBoard extends Component
 
     public ?int $sprintScope = null;
 
+    public string $taskSearch = '';
+
     public array $filters = [
         'assignee' => '',
         'status' => '',
@@ -70,6 +72,11 @@ class ProjectBoard extends Component
             'date_to' => '',
         ];
         $this->appliedFilters = $this->filters;
+    }
+
+    public function applySearch(): void
+    {
+        $this->taskSearch = trim($this->taskSearch ?? '');
     }
 
     public function loadData(): void
@@ -409,12 +416,12 @@ class ProjectBoard extends Component
     {
         $f = $this->appliedFilters;
 
-        return (
+        return
             ($f['assignee'] ?? '') === '' &&
             ($f['status'] ?? '') === '' &&
             ($f['date_from'] ?? '') === '' &&
-            ($f['date_to'] ?? '') === ''
-        );
+            ($f['date_to'] ?? '') === '' &&
+            trim($this->taskSearch) === '';
     }
 
     public function sprintMatchesFilters(Sprint $sprint): bool
@@ -478,6 +485,16 @@ class ProjectBoard extends Component
 
         if ($to !== '' && $task->deadline && $task->deadline > $to) {
             return false;
+        }
+
+        $term = trim($this->taskSearch);
+        if ($term !== '') {
+            $title  = mb_strtolower((string) ($task->titre ?? ''));
+            $needle = mb_strtolower($term);
+
+            if ($title === '' || strpos($title, $needle) === false) {
+                return false;
+            }
         }
 
         return true;
