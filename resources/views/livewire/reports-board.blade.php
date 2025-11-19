@@ -1,8 +1,27 @@
-<div
-    x-data="reportsDashboard(@js($barData), @js($doughnutData))"
-    x-init="init()"
-    class="space-y-6"
->
+@php
+    $totalTasks = $stats['to_do'] + $stats['in_progress'] + $stats['done'];
+    $den = max($totalTasks, 1);
+
+    $shareTodo = $totalTasks ? $stats['to_do'] / $den * 100 : 0;
+    $shareInProgress = $totalTasks ? $stats['in_progress'] / $den * 100 : 0;
+    $shareDone = 100 - $shareTodo - $shareInProgress;
+
+    $pctTodo = round($shareTodo);
+    $pctInProgress = round($shareInProgress);
+    $pctDone = round($shareDone);
+
+    $maxCount  = max($stats['to_do'], $stats['in_progress'], $stats['done'], 1);
+    $barMaxPx  = 160;
+    $barMinPx  = 16;
+
+    $barHeightsPx = [
+        'todo' => $stats['to_do'] ? ($stats['to_do'] / $maxCount) * $barMaxPx + $barMinPx : 0,
+        'in_progress' => $stats['in_progress'] ? ($stats['in_progress'] / $maxCount) * $barMaxPx + $barMinPx : 0,
+        'done' => $stats['done'] ? ($stats['done'] / $maxCount) * $barMaxPx + $barMinPx : 0,
+    ];
+@endphp
+
+<div class="space-y-6">
     <div class="flex items-start justify-between">
         <div class="space-y-1">
             <div class="relative" x-data="{ open:false }">
@@ -23,7 +42,8 @@
                         <button type="button"
                                 wire:click="$set('currentProjectId', {{ $proj->id_projet }})"
                                 @click="open = false"
-                                class="w-full text-left px-4 py-2 text-sm hover:bg-slate-100 {{ $currentProject && $currentProject->id_projet === $proj->id_projet ? 'font-semibold' : '' }}">
+                                class="w-full text-left px-4 py-2 text-sm hover:bg-slate-100
+                                {{ $currentProject && $currentProject->id_projet === $proj->id_projet ? 'font-semibold' : '' }}">
                             {{ $proj->nom }}
                         </button>
                     @endforeach
@@ -31,26 +51,93 @@
             </div>
         </div>
 
-        <div class="text-sm text-slate-500">
-        </div>
+        <div class="text-sm text-slate-500"></div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white rounded-2xl shadow-sm p-6">
-            <div class="text-center text-sm font-semibold text-slate-900 mb-4">
+            <div class="text-center text-sm font-semibold text-slate-900 mb-20">
                 Project progress statistics
             </div>
-            <div class="h-72">
-                <canvas x-ref="barChart"></canvas>
+
+            <div class="mt-4 h-56 px-10 pb-4 flex items-end justify-between">
+                <div class="flex flex-col items-center flex-1">
+                    @if($barHeightsPx['todo'] > 0)
+                        <div class="w-24 rounded-xl shadow-md shadow-slate-300/70 bg-[#EA4E98]"
+                             style="height: {{ $barHeightsPx['todo'] }}px;">
+                        </div>
+                    @endif
+                    <div class="mt-3 text-[11px] text-slate-600">
+                        To do ({{ $stats['to_do'] }})
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center flex-1">
+                    @if($barHeightsPx['in_progress'] > 0)
+                        <div class="w-24 rounded-xl shadow-md shadow-slate-300/70 bg-[#3687BE]"
+                             style="height: {{ $barHeightsPx['in_progress'] }}px;">
+                        </div>
+                    @endif
+                    <div class="mt-3 text-[11px] text-slate-600">
+                        In progress ({{ $stats['in_progress'] }})
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center flex-1">
+                    @if($barHeightsPx['done'] > 0)
+                        <div class="w-24 rounded-xl shadow-md shadow-slate-300/70 bg-[#1F9D8F]"
+                             style="height: {{ $barHeightsPx['done'] }}px;">
+                        </div>
+                    @endif
+                    <div class="mt-3 text-[11px] text-slate-600">
+                        Done ({{ $stats['done'] }})
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm p-6">
-            <div class="text-center text-sm font-semibold text-slate-900 mb-4">
+            <div class="text-center text-sm font-semibold text-slate-900 mb-20">
                 Pie chart by status
             </div>
-            <div class="h-72 flex items-center justify-center">
-                <canvas x-ref="pieChart" class="max-h-64 max-w-64"></canvas>
+
+            <div class="mt-4 flex flex-col md:flex-row items-center justify-center gap-16">
+                <div class="relative w-40 h-40 flex items-center justify-center">
+                    <div class="w-40 h-40 rounded-full"
+                        style="
+                            background:
+                                conic-gradient(
+                                    #EA4E98 0 {{ $shareTodo }}%,
+                                    #3687BE {{ $shareTodo }}% {{ $shareTodo + $shareInProgress }}%,
+                                    #1F9D8F {{ $shareTodo + $shareInProgress }}% 100%
+                                );
+                        ">
+                    </div>
+
+                    <div class="absolute w-24 h-24 bg-white rounded-full flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-xs text-slate-500">Total</div>
+                            <div class="text-lg font-semibold text-slate-900">
+                                {{ $totalTasks }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-block w-3 h-3 rounded-full bg-[#EA4E98] shadow-sm shadow-slate-300/70"></span>
+                        <span class="text-slate-600">To do ({{ $pctTodo }}%)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="inline-block w-3 h-3 rounded-full bg-[#3687BE] shadow-sm shadow-slate-300/70"></span>
+                        <span class="text-slate-600">In progress ({{ $pctInProgress }}%)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="inline-block w-3 h-3 rounded-full bg-[#1F9D8F] shadow-sm shadow-slate-300/70"></span>
+                        <span class="text-slate-600">Done ({{ $pctDone }}%)</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -82,84 +169,3 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-    <script>
-        function reportsDashboard(barData, doughnutData) {
-            return {
-                barData,
-                doughnutData,
-                barChart: null,
-                pieChart: null,
-
-                init() {
-                    const barCtx = this.$refs.barChart.getContext('2d');
-                    const pieCtx = this.$refs.pieChart.getContext('2d');
-
-                    this.barChart = new Chart(barCtx, {
-                        type: 'bar',
-                        data: this.barData,
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                x: {
-                                    grid: { display: false },
-                                    ticks: { font: { size: 11 } }
-                                },
-                                y: {
-                                    beginAtZero: true,
-                                    grid: {
-                                        borderDash: [4, 4],
-                                        color: '#e5e7eb'
-                                    },
-                                    ticks: {
-                                        stepSize: 5,
-                                        font: { size: 10 }
-                                    }
-                                }
-                            },
-                            plugins: {
-                                legend: { display: false }
-                            }
-                        }
-                    });
-
-                    this.pieChart = new Chart(pieCtx, {
-                        type: 'doughnut',
-                        data: this.doughnutData,
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            cutout: '60%',
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        usePointStyle: true,
-                                        font: { size: 11 }
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-                    window.addEventListener('reports-updated', (event) => {
-                        this.updateCharts(event.detail.barData, event.detail.doughnutData);
-                    });
-                },
-
-                updateCharts(barData, doughnutData) {
-                    if (this.barChart) {
-                        this.barChart.data = barData;
-                        this.barChart.update();
-                    }
-                    if (this.pieChart) {
-                        this.pieChart.data = doughnutData;
-                        this.pieChart.update();
-                    }
-                }
-            }
-        }
-    </script>
-@endpush

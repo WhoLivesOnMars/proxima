@@ -32,13 +32,6 @@ class ReportsBoard extends Component
         if ($first) {
             $this->currentProjectId = $first->id_projet;
             $this->loadStats();
-        } else {
-            $this->stats = [
-                'to_do' => 0,
-                'in_progress' => 0,
-                'done' => 0,
-                'overdue' => 0,
-            ];
         }
     }
 
@@ -52,7 +45,7 @@ class ReportsBoard extends Component
         $this->currentProject = $this->projects
             ->firstWhere('id_projet', $this->currentProjectId);
 
-        if (!$this->currentProject) {
+        if (! $this->currentProject) {
             $this->stats = [
                 'to_do' => 0,
                 'in_progress' => 0,
@@ -76,42 +69,6 @@ class ReportsBoard extends Component
 
     public function render()
     {
-        $barData = [
-            'labels' => ['To do', 'In progress', 'Done'],
-            'datasets' => [[
-                'label' => 'Tasks',
-                'data' => [
-                    $this->stats['to_do'],
-                    $this->stats['in_progress'],
-                    $this->stats['done'],
-                ],
-                'backgroundColor' => ['#EA4E98', '#3687BE', '#1F9D8F'],
-                'borderRadius' => 12,
-            ]],
-        ];
-
-        $doughnutData = [
-            'labels' => ['To do', 'In progress', 'Done'],
-            'datasets' => [[
-                'data' => [
-                    $this->stats['to_do'],
-                    $this->stats['in_progress'],
-                    $this->stats['done'],
-                ],
-                'backgroundColor' => ['#EA4E98', '#3687BE', '#1F9D8F'],
-                'borderWidth' => 0,
-            ]],
-        ];
-
-        $this->dispatch(
-            'reports-updated',
-            barData: $barData,
-            doughnutData: $doughnutData
-        );
-
-        return view('livewire.reports-board', [
-            'barData' => $barData,
-            'doughnutData' => $doughnutData,
-        ]);
+        return view('livewire.reports-board');
     }
 }

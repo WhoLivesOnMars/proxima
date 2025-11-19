@@ -1,15 +1,15 @@
 @php
-    $collapsedVar = $collapsedVar ?? 'collapsed';
+    $collapsed = '$store.sidebar.collapsed';
 @endphp
 
 <nav class="h-full bg-secondary-700 border-r flex flex-col select-none relative">
     <button type="button"
-    class="w-full h-14 flex items-center px-7 hover:bg-secondary-500"
-    @click="{{ $collapsedVar }} = !{{ $collapsedVar }}">
-        <template x-if="{{ $collapsedVar }}">
+        class="w-full h-14 flex items-center px-7 hover:bg-secondary-500"
+        @click="$store.sidebar.toggle()">
+        <template x-if="{{ $collapsed }}">
             <x-heroicon-o-bars-3 class="w-7 h-7 text-light"/>
         </template>
-        <template x-if="!{{ $collapsedVar }}">
+        <template x-if="!{{ $collapsed }}">
             <x-heroicon-o-x-mark class="w-7 h-7 text-light"/>
         </template>
     </button>
@@ -18,7 +18,7 @@
         @php
             $items = [
                 ['route' => 'projects.index', 'icon' => 'folder', 'label' => 'Projects'],
-                ['route' => 'tasks.index', 'icon' => 'check-badge', 'label' => 'Tasks'],
+                // ['route' => 'tasks.index', 'icon' => 'check-badge', 'label' => 'Tasks'],
                 ['route' => 'kanban.index', 'icon' => 'rectangle-group', 'label' => 'Kanban'],
                 ['route' => 'roadmap.index', 'icon' => 'map', 'label' => 'Roadmap'],
                 ['route' => 'reports.index', 'icon' => 'chart-bar', 'label' => 'Reports'],
@@ -34,8 +34,9 @@
                         <x-dynamic-component :component="$icon" class="w-7 h-7 text-primary-300"/>
                     </span>
 
-                    <span class="text-light overflow-hidden whitespace-nowrap transition-all duration-200 ease-in-out"
-                        :class="{{ $collapsedVar }}
+                    <span x-cloak
+                        class="text-light overflow-hidden whitespace-nowrap transition-all duration-200 ease-in-out"
+                        :class="{{ $collapsed }}
                                     ? 'opacity-0 translate-x-2 w-0'
                                     : 'opacity-100 translate-x-0 w-auto'">
                         {{ $it['label'] }}
@@ -59,8 +60,9 @@
                 aria-haspopup="menu" :aria-expanded="show">
                 <x-user-initials :first="$first" :last="$last" class="w-9 h-9 text-sm"/>
             </button>
-            <span class="text-sm text-light overflow-hidden whitespace-nowrap transition-all duration-200"
-                :class="{{ $collapsedVar }} ? 'opacity-0 translate-x-2 w-0' : 'opacity-100 translate-x-0 w-auto'">
+            <span x-cloak
+                class="text-sm text-light overflow-hidden whitespace-nowrap transition-all duration-200"
+                :class="{{ $collapsed }} ? 'opacity-0 translate-x-2 w-0' : 'opacity-100 translate-x-0 w-auto'">
                 {{ Str::limit(trim($first.' '.$last), 24) }}
             </span>
 
@@ -81,7 +83,7 @@
         </div>
 
         <form method="POST" action="{{ route('logout') }}"
-            :class="{{ $collapsedVar }} ? 'hidden' : 'block'">
+            :class="{{ $collapsed }} ? 'hidden' : 'block'">
             @csrf
             <button type="submit"
                     class="p-2 rounded hover:bg-secondary-500"
