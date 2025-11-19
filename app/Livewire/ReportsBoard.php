@@ -22,14 +22,24 @@ class ReportsBoard extends Component
 
     public function mount()
     {
-        $this->projects = Projet::orderBy('created_at', 'desc')->get();
+        $user = auth()->user();
+
+        $this->projects = Projet::ownedOrMember($user->id_utilisateur)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $first = $this->projects->first();
         if ($first) {
             $this->currentProjectId = $first->id_projet;
+            $this->loadStats();
+        } else {
+            $this->stats = [
+                'to_do' => 0,
+                'in_progress' => 0,
+                'done' => 0,
+                'overdue' => 0,
+            ];
         }
-
-        $this->loadStats();
     }
 
     public function updatedCurrentProjectId()

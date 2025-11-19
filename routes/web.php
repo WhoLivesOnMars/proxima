@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjetController;
 use App\Http\Controllers\SprintController;
 use App\Http\Controllers\EpicController;
@@ -8,15 +9,19 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\KanbanController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ProjectInvitationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', DashboardController::class)
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+Route::get('/invites/{token}', [ProjectInvitationController::class, 'accept'])
+    ->name('invites.accept');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

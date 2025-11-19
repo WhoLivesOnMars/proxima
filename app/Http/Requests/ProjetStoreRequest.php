@@ -26,7 +26,8 @@ class ProjetStoreRequest extends FormRequest
             'nom' => ['required','string','max:255'],
             'description'=> ['nullable','string'],
             'status' => ['required', Rule::in(['active','completed'])],
-            'visibility' => ['required', Rule::in(['private','shared','public'])],
+            'visibility' => ['required', Rule::in(['private','shared'])],
+            'members_emails' => ['nullable','string'],
         ];
     }
 }

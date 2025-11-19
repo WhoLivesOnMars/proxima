@@ -211,13 +211,15 @@
                                 <div class="h-5 flex items-center w-full text-[11px] text-slate-400 leading-none">
                                     {{ $task->epic?->nom ?? '—' }}
                                 </div>
-                                <button
-                                    type="button"
-                                    class="p-1 rounded hover:bg-slate-100 focus:outline-none"
-                                    @click.stop="openMenu({{ $task->id_tache }}, $event.target.closest('div[draggable]'))"
-                                >
-                                    <x-heroicon-o-ellipsis-horizontal class="w-5 h-5 text-slate-400" />
-                                </button>
+                                @if(!$viaToken)
+                                    <button
+                                        type="button"
+                                        class="p-1 rounded hover:bg-slate-100 focus:outline-none"
+                                        @click.stop="openMenu({{ $task->id_tache }}, $event.target.closest('div[draggable]'))"
+                                    >
+                                        <x-heroicon-o-ellipsis-horizontal class="w-5 h-5 text-slate-400" />
+                                    </button>
+                                @endif
                             </div>
 
                             <input
@@ -225,6 +227,7 @@
                                 value="{{ $task->titre }}"
                                 class="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 p-0 text-sm font-semibold text-slate-900"
                                 x-on:change="$wire.updateTitle({{ $task->id_tache }}, $event.target.value)"
+                                @unless($canEditCards) disabled @endunless
                             />
 
                             @if(($task->description && trim($task->description) !== '') || $task->attachment_path)
@@ -247,6 +250,7 @@
                                         value="{{ $task->deadline ? $task->deadline->format('Y-m-d') : '' }}"
                                         class="border-none bg-transparent outline-none focus:outline-none focus:ring-0 p-0 text-[11px]"
                                         x-on:change="$wire.updateDeadline({{ $task->id_tache }}, $event.target.value)"
+                                        @unless($canEditCards) disabled @endunless
                                     >
                                 </label>
 
@@ -265,24 +269,27 @@
         @endforeach
     </div>
 
-    <template x-if="openMenuId !== null">
-        <div>
-            <div class="fixed inset-0 bg-slate-900/30 z-30" @click="closeMenu()"></div>
+    <div
+        x-show="openMenuId !== null"
+        x-cloak
+    >
+        <div class="fixed inset-0 bg-slate-900/30 z-30" @click="closeMenu()"></div>
 
-            <div class="absolute z-50 flex flex-col gap-1"
-                 :style="`top:${menuTop}px; left:${menuLeft}px;`"
-                 @click.outside="closeMenu()"
-                 tabindex="-1"
+        <div class="absolute z-50 flex flex-col gap-1"
+            :style="`top:${menuTop}px; left:${menuLeft}px;`"
+            @click.outside="closeMenu()"
+            tabindex="-1"
+        >
+            <button
+                type="button"
+                class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md text-xs text-slate-700 hover:bg-slate-200 transition"
+                @click="$wire.openCard(openMenuId); closeMenu();"
             >
-                <button
-                    type="button"
-                    class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md text-xs text-slate-700 hover:bg-slate-200 transition"
-                    @click="$wire.openCard(openMenuId); closeMenu();"
-                >
-                    <x-heroicon-o-arrow-top-right-on-square class="w-4 h-4" />
-                    <span>Open card</span>
-                </button>
+                <x-heroicon-o-arrow-top-right-on-square class="w-4 h-4" />
+                <span>Open card</span>
+            </button>
 
+            @if($canEditCards)
                 <div class="relative">
                     <button
                         type="button"
@@ -319,43 +326,44 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="relative">
-                    <button
-                        type="button"
-                        class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md text-xs text-slate-700 hover:bg-slate-200 transition"
-                        @click.stop="showMoveSub = !showMoveSub; showAssignSub = false;"
-                    >
-                        <x-heroicon-o-arrow-right-circle class="w-4 h-4" />
-                        <span>Move to</span>
-                    </button>
-
-                    <div
-                        x-show="showMoveSub"
-                        x-transition
-                        class="absolute left-full top-0 ml-2 bg-white shadow-lg rounded-md border px-2 py-2 flex flex-col gap-1 min-w-[120px] z-50"
-                    >
-                        @foreach($columns as $code => $meta)
-                            <button
-                                type="button"
-                                class="text-xs text-slate-700 bg-slate-100/70 hover:bg-slate-200 px-2 py-1 rounded"
-                                @click="$wire.moveTaskWithRules(openMenuId, '{{ $code }}'); closeMenu();"
-                            >
-                                {{ $meta['label'] }}
-                            </button>
-                        @endforeach
-                    </div>
-                </div>
-
+            @endif
+            <div class="relative">
                 <button
                     type="button"
                     class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md text-xs text-slate-700 hover:bg-slate-200 transition"
-                    @click="$wire.copyTask(openMenuId); closeMenu();"
+                    @click.stop="showMoveSub = !showMoveSub; showAssignSub = false;"
                 >
-                    <x-heroicon-o-document-duplicate class="w-4 h-4" />
-                    <span>Copy card</span>
+                    <x-heroicon-o-arrow-right-circle class="w-4 h-4" />
+                    <span>Move to</span>
                 </button>
 
+                <div
+                    x-show="showMoveSub"
+                    x-transition
+                    class="absolute left-full top-0 ml-2 bg-white shadow-lg rounded-md border px-2 py-2 flex flex-col gap-1 min-w-[120px] z-50"
+                >
+                    @foreach($columns as $code => $meta)
+                        <button
+                            type="button"
+                            class="text-xs text-slate-700 bg-slate-100/70 hover:bg-slate-200 px-2 py-1 rounded"
+                            @click="$wire.moveTaskWithRules(openMenuId, '{{ $code }}'); closeMenu();"
+                        >
+                            {{ $meta['label'] }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md text-xs text-slate-700 hover:bg-slate-200 transition"
+                @click="$wire.copyTask(openMenuId); closeMenu();"
+            >
+                <x-heroicon-o-document-duplicate class="w-4 h-4" />
+                <span>Copy card</span>
+            </button>
+
+            @if($canEditCards)
                 <button
                     type="button"
                     class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md text-xs text-rose-600 hover:bg-rose-100 transition"
@@ -364,36 +372,36 @@
                     <x-heroicon-o-trash class="w-4 h-4" />
                     <span>Delete card</span>
                 </button>
-            </div>
+            @endif
         </div>
-    </template>
+    </div>
 
     <template x-teleport="body">
         <div
-          x-show="modalOpen"
-          x-transition
-          x-cloak
-          class="fixed inset-0 z-[120] flex items-center justify-center"
-          @keydown.window.escape="modalOpen=false"
+        x-show="modalOpen"
+        x-transition
+        x-cloak
+        class="fixed inset-0 z-[120] flex items-center justify-center"
+        @keydown.window.escape="modalOpen=false"
         >
-          <div class="absolute inset-0 bg-slate-900/40" @click="modalOpen=false"></div>
+        <div class="absolute inset-0 bg-slate-900/40" @click="modalOpen=false"></div>
 
-          <div class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-5 z-[130]">
+        <div class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-5 z-[130]">
             <div class="flex justify-end">
-              <button class="p-1 rounded hover:bg-slate-100" @click="modalOpen=false">
+            <button class="p-1 rounded hover:bg-slate-100" @click="modalOpen=false">
                 <x-heroicon-o-x-mark class="w-5 h-5 text-slate-500"/>
-              </button>
+            </button>
             </div>
 
             <div class="space-y-4">
               <div>
-                <label class="block text-xs text-slate-500 mb-1">Title</label>
-                <input type="text" class="w-full rounded border-slate-300" x-model="modalTitre">
+                  <label class="block text-xs text-slate-500 mb-1">Title</label>
+                  <input type="text" class="w-full rounded border-slate-300" x-model="modalTitre">
               </div>
 
               <div>
-                <label class="block text-xs text-slate-500 mb-1">Description</label>
-                <textarea rows="4" class="w-full rounded border-slate-300" x-model="modalDescription"></textarea>
+                  <label class="block text-xs text-slate-500 mb-1">Description</label>
+                  <textarea rows="4" class="w-full rounded border-slate-300" x-model="modalDescription"></textarea>
               </div>
 
               <div class="grid grid-cols-2 gap-4">
@@ -409,74 +417,72 @@
               </div>
 
               <div class="grid grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <label class="block text-xs text-slate-500 mb-1">Epic</label>
-                    <select class="w-full rounded border-slate-300" x-model="modalEpicId">
-                      <option value="">—</option>
-                      @foreach($epicOptions as $eid => $ename)
-                        <option value="{{ $eid }}">{{ $ename }}</option>
-                      @endforeach
-                    </select>
-                  </div>
+                <div>
+                  <label class="block text-xs text-slate-500 mb-1">Epic</label>
+                  <select class="w-full rounded border-slate-300" x-model="modalEpicId">
+                    <option value="">—</option>
+                    @foreach($epicOptions as $eid => $ename)
+                      <option value="{{ $eid }}">{{ $ename }}</option>
+                    @endforeach
+                  </select>
+                </div>
 
-                  <div>
-                    <label class="block text-xs text-slate-500 mb-1">Assignee</label>
-                    <select class="w-full rounded border-slate-300" x-model="modalAssigneeId">
-                      <option value="">—</option>
-                      @foreach($assigneeOptions as $uid => $uname)
-                        <option value="{{ $uid }}">{{ $uname }}</option>
-                      @endforeach
-                    </select>
-                  </div>
+                <div>
+                  <label class="block text-xs text-slate-500 mb-1">Assignee</label>
+                  <select class="w-full rounded border-slate-300" x-model="modalAssigneeId">
+                    <option value="">—</option>
+                    @foreach($assigneeOptions as $uid => $uname)
+                      <option value="{{ $uid }}">{{ $uname }}</option>
+                    @endforeach
+                  </select>
+                </div>
               </div>
 
               <div class="mt-4">
-                  <label class="block text-xs text-slate-500 mb-1">Attachment</label>
+                <label class="block text-xs text-slate-500 mb-1">Attachment</label>
 
-                  <input type="file"
-                         class="w-full text-sm"
-                         wire:model="modalAttachment">
+                <input type="file"
+                       class="w-full text-sm"
+                       wire:model="modalAttachment">
 
-                  @error('modalAttachment')
-                    <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
-                  @enderror
+                @error('modalAttachment')
+                  <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                @enderror
 
-                  @if($modalAttachmentPath)
-                      @php
-                          $fileName = basename($modalAttachmentPath);
-                      @endphp
+                @if($modalAttachmentPath)
+                    @php $fileName = basename($modalAttachmentPath); @endphp
 
-                      <div class="mt-2 flex items-center justify-between text-xs">
-                        <a href="{{ asset('storage/'.$modalAttachmentPath) }}"
-                           class="text-emerald-700 underline break-all"
-                           target="_blank">
-                          {{ $fileName }}
-                        </a>
+                    <div class="mt-2 flex items-center justify-between text-xs">
+                      <a href="{{ asset('storage/'.$modalAttachmentPath) }}"
+                         class="text-emerald-700 underline break-all"
+                         target="_blank">
+                        {{ $fileName }}
+                      </a>
 
-                        <button type="button"
-                                wire:click="deleteAttachment"
-                                class="text-slate-400 hover:text-rose-600 transition"
-                                title="Remove file">
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="w-4 h-4"
-                               fill="none"
-                               viewBox="0 0 24 24"
-                               stroke="currentColor"
-                               stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                  @endif
+                      <button type="button"
+                              wire:click="deleteAttachment"
+                              class="text-slate-400 hover:text-rose-600 transition"
+                              title="Remove file">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="w-4 h-4"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                @endif
               </div>
             </div>
 
             <div class="mt-5 flex items-center justify-end gap-2">
-              <button class="px-3 py-1.5 rounded border text-slate-600" @click="modalOpen=false">Cancel</button>
-              <button type="button" class="px-3 py-1.5 rounded bg-emerald-600 text-white" wire:click="saveCard">
-                Save
-              </button>
+                <button class="px-3 py-1.5 rounded border text-slate-600" @click="modalOpen=false">Cancel</button>
+                <button type="button" class="px-3 py-1.5 rounded bg-emerald-600 text-white" wire:click="saveCard">
+                    Save
+                </button>
             </div>
           </div>
         </div>

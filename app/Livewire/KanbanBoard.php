@@ -43,6 +43,9 @@ class KanbanBoard extends Component
     ];
 
     public bool $modalOpen = false;
+    public bool $isOwner = false;
+    public bool $isMember = false;
+    public bool $viaToken = false;
     public ?int $modalTaskId = null;
     public string $modalTitre = '';
     public ?string $modalDescription = null;
@@ -90,6 +93,16 @@ class KanbanBoard extends Component
         }
 
         $project = $this->projects->firstWhere('id_projet', $this->currentProjectId);
+        $user = auth()->user();
+
+        $this->viaToken = request()->has('token')
+            && $project
+            && request()->get('token') === $project->share_token;
+
+        $this->isMember = $project && $user
+            && $project->members()
+                ->where('membre_projet.id_utilisateur', $user->id_utilisateur)
+                ->exists();
 
         $this->buildAssigneeOptions($project);
 
@@ -105,6 +118,30 @@ class KanbanBoard extends Component
         $this->buildEpicOptions($project);
 
         $this->resetFilters();
+    }
+
+    protected function canEditCards(): bool
+    {
+        if ($this->viaToken) {
+            return false;
+        }
+
+        $user = auth()->user();
+
+        if (!$user || !$this->currentProjectId) {
+            return false;
+        }
+
+        $project = Projet::query()
+            ->select('id_projet', 'owner_id')
+            ->where('id_projet', $this->currentProjectId)
+            ->first();
+
+        if (!$project) {
+            return false;
+        }
+
+        return (int) $project->owner_id === (int) $user->id_utilisateur;
     }
 
     protected function buildAssigneeOptions(?Projet $project): void
@@ -131,7 +168,7 @@ class KanbanBoard extends Component
             ->get();
 
         foreach ($members as $m) {
-            $list[$m->id_utilisateur] = trim(($м->prenom ?? '') . ' ' . ($м->nom ?? ''));
+            $list[$m->id_utilisateur] = trim(($m->prenom ?? '') . ' ' . ($m->nom ?? ''));
         }
 
         $this->assigneeOptions = $list;
@@ -270,6 +307,10 @@ class KanbanBoard extends Component
 
     public function storeNewTask(string $status = 'todo'): void
     {
+        if (!$this->canEditCards()) {
+            return;
+        }
+
         if (!$this->currentProjectId || !$this->currentSprintId) return;
 
         $titre = trim($this->newTitle) ?: 'New task';
@@ -302,6 +343,7 @@ class KanbanBoard extends Component
 
     public function moveTaskWithRules(int $taskId, string $targetStatus): void
     {
+
         $task = Tache::findOrFail($taskId);
         Gate::authorize('update', $task);
 
@@ -325,6 +367,10 @@ class KanbanBoard extends Component
 
     public function updateTitle(int $taskId, string $value): void
     {
+        if (!$this->canEditCards()) {
+            return;
+        }
+
         $task = Tache::findOrFail($taskId);
         Gate::authorize('update', $task);
 
@@ -335,6 +381,10 @@ class KanbanBoard extends Component
 
     public function updateDeadline(int $taskId, ?string $value): void
     {
+        if (!$this->canEditCards()) {
+            return;
+        }
+
         $task = Tache::findOrFail($taskId);
         Gate::authorize('update', $task);
 
@@ -355,6 +405,10 @@ class KanbanBoard extends Component
 
     public function assignTo(int $taskId, int $userId): void
     {
+        if (!$this->canEditCards()) {
+            return;
+        }
+
         $task = Tache::findOrFail($taskId);
         Gate::authorize('update', $task);
 
@@ -383,6 +437,10 @@ class KanbanBoard extends Component
 
     public function deleteTask(int $taskId): void
     {
+        if (!$this->canEditCards()) {
+            return;
+        }
+
         $task = Tache::findOrFail($taskId);
         Gate::authorize('delete', $task);
 
@@ -414,6 +472,10 @@ class KanbanBoard extends Component
 
     public function saveCard(): void
     {
+        if (!$this->canEditCards()) {
+            return;
+        }
+
         if (!$this->modalTaskId) return;
 
         $t = Tache::findOrFail($this->modalTaskId);
@@ -504,6 +566,10 @@ class KanbanBoard extends Component
 
     public function deleteAttachment(): void
     {
+        if (!$this->canEditCards()) {
+            return;
+        }
+
         if (!$this->modalTaskId) return;
 
         $t = Tache::findOrFail($this->modalTaskId);
@@ -539,9 +605,15 @@ class KanbanBoard extends Component
             $currentSprint = $currentProject->sprints->firstWhere('id_sprint', $this->currentSprintId);
         }
 
+        $canEditCards = $this->canEditCards();
+
         return view('livewire.kanban-board', [
             'currentProject' => $currentProject,
             'currentSprint' => $currentSprint,
+            'canEditCards' => $canEditCards,
+            'isOwner' => $this->isOwner,
+            'isMember' => $this->isMember,
+            'viaToken' => $this->viaToken,
         ]);
     }
 }

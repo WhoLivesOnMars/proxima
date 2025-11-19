@@ -49,7 +49,7 @@
                     <label class="block text-sm mb-1">Visibility</label>
                     <select name="visibility" class="w-full h-10 px-3 rounded-md border text-sm">
                         <option value="">Any</option>
-                        @foreach (['private','shared','public'] as $v)
+                        @foreach (['private','shared'] as $v)
                             <option value="{{ $v }}" @selected(request('visibility')===$v)>{{ ucfirst($v) }}</option>
                         @endforeach
                     </select>
@@ -73,6 +73,12 @@
     @if (session('ok'))
         <div class="mb-4 rounded bg-primary-500/10 border border-primary-500/20 px-4 py-2">
             {{ session('ok') }}
+        </div>
+    @endif
+
+    @if (session('members_warning'))
+        <div class="mb-2 rounded bg-yellow-100 border border-yellow-300 px-4 py-2 text-sm text-yellow-900">
+            {{ session('members_warning') }}
         </div>
     @endif
 

@@ -7,18 +7,23 @@
     @inline-error.window="alert($event.detail.message)"
 >
     <div class="mb-6 flex items-center gap-3">
-        <a href="{{ route('projects.sprints.create', ['projet' => $projet]) }}"
-           class="inline-flex w-fit rounded-md px-7 py-1 bg-primary-500 hover:bg-primary-700 text-white">
-            + New Sprint
-        </a>
-        <a href="{{ route('projects.epics.create', ['projet' => $projet]) }}"
-           class="inline-flex w-fit rounded-md px-7 py-1 bg-primary-500 hover:bg-primary-700 text-white">
-            + New Epic
-        </a>
-        <a href="{{ route('projects.tasks.create', ['projet' => $projet]) }}"
-           class="inline-flex w-fit rounded-md px-7 py-1 bg-primary-500 hover:bg-primary-700 text-white">
-            + New Task
-        </a>
+        @if($canManageStructure)
+            <a href="{{ route('projects.sprints.create', ['projet' => $projet]) }}"
+                class="inline-flex w-fit rounded-md px-7 py-1 bg-primary-500 hover:bg-primary-700 text-white">
+                + New Sprint
+            </a>
+            <a href="{{ route('projects.epics.create', ['projet' => $projet]) }}"
+                class="inline-flex w-fit rounded-md px-7 py-1 bg-primary-500 hover:bg-primary-700 text-white">
+                + New Epic
+            </a>
+        @endif
+
+        @if($canCreateTask)
+            <a href="{{ route('projects.tasks.create', ['projet' => $projet]) }}"
+                class="inline-flex w-fit rounded-md px-7 py-1 bg-primary-500 hover:bg-primary-700 text-white">
+                + New Task
+            </a>
+        @endif
     </div>
 
     <div class="mb-3 flex items-start justify-between">
@@ -185,34 +190,39 @@
                             <span class="inline-block w-6 h-6 rounded-md bg-[#e2f0ff] text-xs grid place-items-center text-[#0f5fac]">S</span>
                             <input type="text" value="{{ $sprint->nom }}"
                                    x-on:change="$wire.updateField('sprint', {{ $sprint->id_sprint }}, 'nom', $event.target.value)"
+                                   @unless($canManageStructure) disabled @endunless
                                    class="border-0 bg-transparent text-sm outline-none focus:outline-none focus:ring-0 focus:border-transparent">
                         </span>
                     </td>
                     <td class="py-3 px-3 text-center border-t border-r border-secondary-200">
                         <input type="date" value="{{ $sprintStart?->format('Y-m-d') }}"
                                x-on:change="$wire.updateField('sprint', {{ $sprint->id_sprint }}, 'start_date', $event.target.value)"
+                               @unless($canManageStructure) disabled @endunless
                                class="border-0 bg-transparent text-sm text-center outline-none focus:outline-none focus:ring-0 focus:border-transparent">
                     </td>
                     <td class="py-3 px-3 text-center border-t border-r border-secondary-200">
                         <input type="date" value="{{ $sprintEnd?->format('Y-m-d') }}"
                                x-on:change="$wire.updateField('sprint', {{ $sprint->id_sprint }}, 'end_date', $event.target.value)"
+                               @unless($canManageStructure) disabled @endunless
                                class="border-0 bg-transparent text-sm text-center outline-none focus:outline-none focus:ring-0 focus:border-transparent">
                     </td>
                     <td colspan="2" class="border-t border-r border-secondary-200 text-center text-gray-400"></td>
                     <td class="py-3 px-3 text-center border-t border-secondary-200">
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                <button type="button" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-secondary-100">
-                                    <x-heroicon-o-ellipsis-vertical class="w-5 h-5"/>
-                                </button>
-                            </x-slot>
-                            <x-slot name="content">
-                                <form method="POST" action="{{ route('sprints.destroy', $sprint) }}" onsubmit="return confirm('Delete this sprint?')">
-                                    @csrf @method('DELETE')
-                                    <button class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Delete</button>
-                                </form>
-                            </x-slot>
-                        </x-dropdown>
+                        @if($canDeleteItems)
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    <button type="button" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-secondary-100">
+                                        <x-heroicon-o-ellipsis-vertical class="w-5 h-5"/>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <form method="POST" action="{{ route('sprints.destroy', $sprint) }}" onsubmit="return confirm('Delete this sprint?')">
+                                        @csrf @method('DELETE')
+                                        <button class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Delete</button>
+                                    </form>
+                                </x-slot>
+                            </x-dropdown>
+                        @endif
                     </td>
                 </tr>
 
@@ -243,24 +253,27 @@
                                 <span class="inline-block w-6 h-6 rounded-md bg-[#fff2cc] text-xs grid place-items-center text-[#946200]">E</span>
                                 <input type="text" value="{{ $epic->nom }}"
                                        x-on:change="$wire.updateField('epic', {{ $epic->id_epic }}, 'nom', $event.target.value)"
+                                       @unless($canManageStructure) disabled @endunless
                                        class="border-0 bg-transparent text-sm outline-none focus:outline-none focus:ring-0 focus:border-transparent">
                             </span>
                         </td>
                         <td colspan="4" class="text-center border-t border-r border-secondary-200 text-gray-400"></td>
                         <td class="py-3 px-3 text-center border-t border-secondary-200">
-                            <x-dropdown align="right" width="48">
-                                <x-slot name="trigger">
-                                    <button type="button" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-secondary-100">
-                                        <x-heroicon-o-ellipsis-vertical class="w-5 h-5"/>
-                                    </button>
-                                </x-slot>
-                                <x-slot name="content">
-                                    <form method="POST" action="{{ route('epics.destroy', $epic) }}" onsubmit="return confirm('Delete this epic?')">
-                                        @csrf @method('DELETE')
-                                        <button class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Delete</button>
-                                    </form>
-                                </x-slot>
-                            </x-dropdown>
+                            @if($canDeleteItems)
+                                <x-dropdown align="right" width="48">
+                                    <x-slot name="trigger">
+                                        <button type="button" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-secondary-100">
+                                            <x-heroicon-o-ellipsis-vertical class="w-5 h-5"/>
+                                        </button>
+                                    </x-slot>
+                                    <x-slot name="content">
+                                        <form method="POST" action="{{ route('epics.destroy', $epic) }}" onsubmit="return confirm('Delete this epic?')">
+                                            @csrf @method('DELETE')
+                                            <button class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Delete</button>
+                                        </form>
+                                    </x-slot>
+                                </x-dropdown>
+                            @endif
                         </td>
                     </tr>
 
@@ -273,6 +286,9 @@
                                 'sprint' => $sprint,
                                 'epic' => $epic,
                                 'assigneeOptions' => $assigneeOptions,
+                                'isOwner' => $isOwner,
+                                'canChangeStatus' => $canChangeStatus,
+                                'canDelete' => $canDeleteItems,
                             ])
                         @endif
                     @endforeach
@@ -287,6 +303,9 @@
                             'sprint' => $sprint,
                             'epic' => null,
                             'assigneeOptions' => $assigneeOptions,
+                            'isOwner' => $isOwner,
+                            'canChangeStatus' => $canChangeStatus,
+                            'canDelete' => $canDeleteItems,
                         ])
                     @endif
                 @endforeach

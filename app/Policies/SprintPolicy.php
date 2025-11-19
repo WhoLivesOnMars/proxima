@@ -44,10 +44,7 @@ class SprintPolicy
     {
         $project = $sprint->projet;
 
-        return $project->owner_id === $utilisateur->id_utilisateur
-            || $project->members()
-                ->where('membre_projet.id_utilisateur', $utilisateur->id_utilisateur)
-                ->exists();
+        return $project->owner_id === $utilisateur->id_utilisateur;
     }
 
     /**

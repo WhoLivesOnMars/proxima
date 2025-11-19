@@ -1,5 +1,4 @@
 <x-app-layout>
-
     <div class="space-y-8">
 
         <div>
@@ -15,28 +14,28 @@
             <div class="bg-white shadow rounded-xl p-5 border border-primary-200/50">
                 <div class="text-sm text-gray-500">Projects</div>
                 <div class="text-3xl font-semibold mt-2">
-                    {{ \App\Models\Projet::count() }}
+                    {{ $projectsCount }}
                 </div>
             </div>
 
             <div class="bg-white shadow rounded-xl p-5 border border-primary-200/50">
                 <div class="text-sm text-gray-500">Tasks</div>
                 <div class="text-3xl font-semibold mt-2">
-                    {{ \App\Models\Tache::count() }}
+                    {{ $tasksAssignedCount }}
                 </div>
             </div>
 
             <div class="bg-white shadow rounded-xl p-5 border border-primary-200/50">
                 <div class="text-sm text-gray-500">Sprints</div>
                 <div class="text-3xl font-semibold mt-2">
-                    {{ \App\Models\Sprint::count() }}
+                    {{ $sprintsCount }}
                 </div>
             </div>
 
             <div class="bg-white shadow rounded-xl p-5 border border-primary-200/50">
                 <div class="text-sm text-gray-500">Completed tasks</div>
                 <div class="text-3xl font-semibold mt-2">
-                    {{ \App\Models\Tache::where('status', 'done')->count() }}
+                    {{ $completedTasksCount }}
                 </div>
             </div>
         </div>

@@ -57,7 +57,8 @@ class Projet extends Model
     }
 
     public function members() {
-        return $this->belongsToMany(Utilisateur::class, 'membre_projet', 'id_projet', 'id_utilisateur');
+        return $this->belongsToMany(Utilisateur::class, 'membre_projet', 'id_projet', 'id_utilisateur')
+            ->withPivot('role');
     }
 
     public function scopeVisibleTo(Builder $q, Utilisateur $user): Builder {

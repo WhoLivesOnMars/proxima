@@ -25,7 +25,7 @@ class TachePolicy
     {
         $project = $tache->projet;
         return $project->owner_id === $utilisateur->id_utilisateur
-            || $project->members()->where('id_utilisateur', $utilisateur->id_utilisateur)->exists();
+            || $project->members()->where('membre_projet.id_utilisateur', $utilisateur->id_utilisateur)->exists();
     }
 
     /**
@@ -33,8 +33,12 @@ class TachePolicy
      */
     public function create(Utilisateur $utilisateur, Projet $project): bool
     {
-        return $project->owner_id === $utilisateur->id_utilisateur
-            || $project->members()->where('id_utilisateur', $utilisateur->id_utilisateur)->exists();
+        if ($project->owner_id === $utilisateur->id_utilisateur) {
+            return true;
+        }
+
+        return $project->members()
+            ->where('membre_projet.id_utilisateur', $utilisateur->id_utilisateur)->exists();
     }
 
     /**
@@ -42,6 +46,10 @@ class TachePolicy
      */
     public function update(Utilisateur $utilisateur, Tache $tache): bool
     {
+        if (request()->has('token')) {
+            return false;
+        }
+
         $project = $tache->projet;
 
         if ($project->owner_id === $utilisateur->id_utilisateur) {
@@ -58,11 +66,7 @@ class TachePolicy
     {
         $project = $tache->projet;
 
-        if ($project->owner_id === $utilisateur->id_utilisateur) {
-            return true;
-        }
-
-        return $tache->id_utilisateur === $utilisateur->id_utilisateur;
+        return $project->owner_id === $utilisateur->id_utilisateur;
     }
 
     /**
@@ -83,8 +87,13 @@ class TachePolicy
 
     public function propose(Utilisateur $u, Projet $project): bool
     {
-        return $project->owner_id === $u->id_utilisateur
-            || $project->members()->where('id_utilisateur', $u->id_utilisateur)->exists();
+        if ($project->owner_id === $u->id_utilisateur) {
+            return true;
+        }
+
+        return $project->members()
+            ->where('membre_projet.id_utilisateur', $u->id_utilisateur)
+            ->exists();
     }
 
     public function moderate(Utilisateur $u, TacheProposee $prop): bool
@@ -94,7 +103,12 @@ class TachePolicy
 
     public function viewProposals(Utilisateur $u, Projet $project): bool
     {
-        return $project->owner_id === $u->id_utilisateur
-            || $project->members()->where('id_utilisateur', $u->id_utilisateur)->exists();
+        if ($project->owner_id === $u->id_utilisateur) {
+            return true;
+        }
+
+        return $project->members()
+            ->where('membre_projet.id_utilisateur', $u->id_utilisateur)
+            ->exists();
     }
 }

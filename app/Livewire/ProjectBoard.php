@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class ProjectBoard extends Component
@@ -37,12 +38,45 @@ class ProjectBoard extends Component
         'task' => Tache::class,
     ];
 
+    public bool $isOwner = false;
+    public bool $isMember = false;
+    public bool $viaToken = false;
+
     public function mount(int $projetId): void
     {
         $this->projetId = $projetId;
         $this->loadData();
 
+        $user = auth()->user();
+        $this->viaToken = request()->has('token')
+            && request()->get('token') === $this->projet->share_token;
+
+        $this->isOwner = $user && $user->id_utilisateur === $this->projet->owner_id;
+        $this->isMember = $user
+            && $this->projet->members
+                ->contains('id_utilisateur', $user->id_utilisateur);
+
         $this->appliedFilters = $this->filters;
+    }
+
+    protected function canManageStructure(): bool
+    {
+        return $this->isOwner && !$this->viaToken;
+    }
+
+    protected function canCreateTask(): bool
+    {
+        return ($this->isOwner || $this->isMember) && !$this->viaToken;
+    }
+
+    protected function canChangeTaskStatus(): bool
+    {
+        return ($this->isOwner || $this->isMember) && !$this->viaToken;
+    }
+
+    protected function canDeleteItems(): bool
+    {
+        return $this->isOwner && !$this->viaToken;
     }
 
     public function setSprintScope($sprintId): void
@@ -91,13 +125,35 @@ class ProjectBoard extends Component
 
     public function updateField(string $model, int $id, string $field, $value): void
     {
+        if ($this->viaToken) {
+            return;
+        }
+
+        if (in_array($model, ['sprint','epic'], true) && !$this->canManageStructure()) {
+            return;
+        }
+
         $cls = $this->editableModels[$model] ?? null;
         if (!$cls) {
             return;
         }
 
         $record = $cls::findOrFail($id);
-        Gate::authorize('update', $record);
+
+        if ($model === 'task') {
+            $currentUserId = auth()->check() ? auth()->user()->id_utilisateur : null;
+
+            if (!$this->isOwner) {
+
+                if ($field !== 'status') {
+                    return;
+                }
+
+                if (!$currentUserId || $record->id_utilisateur != $currentUserId) {
+                    return;
+                }
+            }
+        }
 
         if (is_string($value)) {
             $value = trim($value);
@@ -323,8 +379,11 @@ class ProjectBoard extends Component
 
     public function moveEpicToSprint(int $epicId, int $targetSprintId): void
     {
+        if (!$this->canManageStructure()) {
+            return;
+        }
+
         $epic = Epic::findOrFail($epicId);
-        Gate::authorize('update', $epic);
 
         $epicName = trim($epic->nom);
 
@@ -362,8 +421,11 @@ class ProjectBoard extends Component
 
     public function moveTaskToEpic(int $taskId, int $targetEpicId): void
     {
+        if (!$this->canManageStructure()) {
+            return;
+        }
+
         $task = Tache::findOrFail($taskId);
-        Gate::authorize('update', $task);
 
         $pivot = DB::table('epic_sprint')
             ->where('id_epic', $targetEpicId)
@@ -397,8 +459,11 @@ class ProjectBoard extends Component
 
     public function moveTaskToSprint(int $taskId, int $targetSprintId): void
     {
+        if (!$this->canManageStructure()) {
+            return;
+        }
+
         $task = Tache::findOrFail($taskId);
-        Gate::authorize('update', $task);
 
         $targetSprint = Sprint::find($targetSprintId);
         [$sStart, $sEnd] = $this->sprintDateRange($targetSprint);
@@ -500,13 +565,27 @@ class ProjectBoard extends Component
         return true;
     }
 
-    public function render()
-    {
-        $assigneeOptions = Utilisateur::pluck('nom', 'id_utilisateur')->toArray();
+public function render()
+{
+    $assigneeOptions = collect([$this->projet->owner])
+        ->merge($this->projet->members)
+        ->filter()
+        ->mapWithKeys(function ($u) {
+            return [
+                $u->id_utilisateur => trim(($u->nom ?? '') . ' ' . ($u->prenom ?? '')),
+            ];
+        })
+        ->toArray();
 
-        return view('livewire.project-board', [
-            'projet' => $this->projet,
-            'assigneeOptions' => $assigneeOptions,
-        ]);
-    }
+    return view('livewire.project-board', [
+        'projet' => $this->projet,
+        'assigneeOptions' => $assigneeOptions,
+        'isOwner' => $this->isOwner,
+        'isMember' => $this->isMember,
+        'canManageStructure' => $this->canManageStructure(),
+        'canCreateTask' => $this->canCreateTask(),
+        'canChangeStatus' => $this->canChangeTaskStatus(),
+        'canDeleteItems' => $this->canDeleteItems(),
+    ]);
+}
 }

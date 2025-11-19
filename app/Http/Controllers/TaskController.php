@@ -132,46 +132,22 @@ class TaskController extends Controller
         }
 
         $user = $request->user();
-        $isOwner  = $projet->owner_id === $user->id_utilisateur;
-        $isMember = $projet->members()
-            ->wherePivot('id_utilisateur', $user->id_utilisateur)->exists();
+        $sprint = Sprint::find($data['id_sprint']);
 
-        if ($isOwner) {
-            Tache::create([
-                'id_projet' => $pid,
-                'id_epic' => $data['id_epic'] ?? null,
-                'id_sprint' => $data['id_sprint'],
-                'id_utilisateur' => $data['id_utilisateur'] ?? $user->id_utilisateur,
-                'titre' => $data['titre'],
-                'description' => $data['description'] ?? null,
-                'start_date' => $data['start_date'] ?? ($sprint?->start_date),
-                'deadline' => $data['deadline'] ?? null,
-                'status' => $data['status'],
-            ]);
+        Tache::create([
+            'id_projet' => $pid,
+            'id_epic' => $data['id_epic'] ?? null,
+            'id_sprint' => $data['id_sprint'],
+            'id_utilisateur' => $data['id_utilisateur'] ?? $user->id_utilisateur,
+            'titre' => $data['titre'],
+            'description' => $data['description'] ?? null,
+            'start_date' => $data['start_date'] ?? ($sprint?->start_date),
+            'deadline' => $data['deadline'] ?? null,
+            'status' => $data['status'] ?? 'todo',
+        ]);
 
-            return redirect()->route('projects.show', $projet)
-                ->with('ok', 'Task created.');
-        }
-
-        if ($isMember) {
-            TacheProposee::create([
-                'id_projet' => $pid,
-                'created_by' => $user->id_utilisateur,
-                'id_utilisateur' => $data['id_utilisateur'] ?? null,
-                'id_epic' => $data['id_epic'] ?? null,
-                'id_sprint' => $data['id_sprint'] ?? null,
-                'titre' => $data['titre'],
-                'description' => $data['description'] ?? null,
-                'deadline' => $data['deadline'] ?? null,
-                'approval' => 'pending',
-            ]);
-
-            return redirect()
-                ->route('projects.proposals.index', $projet)
-                ->with('ok', 'Task proposal submitted for approval.');
-        }
-
-        abort(403);
+        return redirect()->route('projects.show', $projet)
+            ->with('ok', 'Task created.');
     }
 
     public function proposalsIndex(Projet $projet, Request $request)

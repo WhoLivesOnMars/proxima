@@ -28,12 +28,13 @@ class ProjetUpdateRequest extends FormRequest
             'nom' => ['required','string','max:255'],
             'description'=> ['nullable','string'],
             'status' => ['required', Rule::in(['active','completed'])],
-            'visibility' => ['required', Rule::in(['private','shared','public'])],
+            'visibility' => ['required', Rule::in(['private','shared'])],
             'share_token' => [
                 'nullable',
                 'uuid',
                 Rule::unique('projet','share_token')->ignore($projet->id_projet, 'id_projet'),
             ],
+            'members_emails' => ['nullable','string'],
         ];
     }
 }
