@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\Url;
 use App\Models\Projet;
 use App\Models\Sprint;
 use App\Models\Epic;
@@ -12,6 +13,8 @@ use Carbon\Carbon;
 class RoadmapBoard extends Component
 {
     public $projects;
+
+    #[Url(as: 'project', except: null)]
     public ?int $currentProjectId = null;
 
     public $sprints = [];
@@ -40,13 +43,23 @@ class RoadmapBoard extends Component
             ->orderBy('nom')
             ->get();
 
-        $this->currentProjectId = $this->projects->first()->id_projet ?? null;
+        if ($this->currentProjectId === null) {
+            $this->currentProjectId = $this->projects->first()->id_projet ?? null;
+        } else {
+            if (! $this->projects->contains('id_projet', $this->currentProjectId)) {
+                $this->currentProjectId = $this->projects->first()->id_projet ?? null;
+            }
+        }
 
         $this->loadRoadmap();
     }
 
     public function selectProject(int $projectId): void
     {
+        if (! $this->projects->contains('id_projet', $projectId)) {
+            return;
+        }
+
         $this->currentProjectId = $projectId;
         $this->loadRoadmap();
     }

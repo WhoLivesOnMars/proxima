@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Url;
+
 
 class KanbanBoard extends Component
 {
@@ -21,6 +23,8 @@ class KanbanBoard extends Component
     public $modalAttachment = null;
 
     public $projects;
+
+    #[Url(as: 'project', except: null)]
     public ?int $currentProjectId = null;
 
     public $availableSprints;
@@ -64,15 +68,25 @@ class KanbanBoard extends Component
             ->orderBy('nom')
             ->get();
 
-        $this->currentProjectId = $this->projects->first()->id_projet ?? null;
+        if ($this->currentProjectId === null) {
+            $this->currentProjectId = $this->projects->first()->id_projet ?? null;
+        } else {
+            if (! $this->projects->contains('id_projet', $this->currentProjectId)) {
+                $this->currentProjectId = $this->projects->first()->id_projet ?? null;
+            }
+        }
 
         $this->reloadSprintsAndTasks();
     }
 
     public function selectProject(int $projectId): void
     {
+        if (! $this->projects->contains('id_projet', $projectId)) {
+            return;
+        }
+
         $this->currentProjectId = $projectId;
-        $this->currentSprintId = null;
+        $this->currentSprintId  = null;
         $this->reloadSprintsAndTasks();
     }
 

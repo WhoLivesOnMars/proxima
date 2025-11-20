@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\Url;
 use App\Models\Projet;
 use App\Models\Tache;
 use Carbon\Carbon;
@@ -10,7 +11,10 @@ use Carbon\Carbon;
 class ReportsBoard extends Component
 {
     public $projects;
+
+    #[Url(as: 'project', except: null)]
     public ?int $currentProjectId = null;
+
     public $currentProject = null;
 
     public $stats = [
@@ -20,7 +24,7 @@ class ReportsBoard extends Component
         'overdue' => 0,
     ];
 
-    public function mount()
+    public function mount(): void
     {
         $user = auth()->user();
 
@@ -28,19 +32,29 @@ class ReportsBoard extends Component
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $first = $this->projects->first();
-        if ($first) {
-            $this->currentProjectId = $first->id_projet;
+        if ($this->currentProjectId === null) {
+            $this->currentProjectId = $this->projects->first()->id_projet ?? null;
+        } else {
+            if (! $this->projects->contains('id_projet', $this->currentProjectId)) {
+                $this->currentProjectId = $this->projects->first()->id_projet ?? null;
+            }
+        }
+
+        if ($this->currentProjectId) {
             $this->loadStats();
         }
     }
 
-    public function updatedCurrentProjectId()
+    public function updatedCurrentProjectId(): void
     {
+        if (! $this->projects->contains('id_projet', $this->currentProjectId)) {
+            return;
+        }
+
         $this->loadStats();
     }
 
-    protected function loadStats()
+    protected function loadStats(): void
     {
         $this->currentProject = $this->projects
             ->firstWhere('id_projet', $this->currentProjectId);

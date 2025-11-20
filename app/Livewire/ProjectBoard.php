@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use Livewire\Component;
+use Livewire\Attributes\Url;
 use App\Models\Projet;
 use App\Models\Epic;
 use App\Models\Tache;
@@ -12,13 +14,13 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 
 class ProjectBoard extends Component
 {
     public int $projetId;
     public Projet $projet;
 
+    #[Url(as: 'sprint', except: null)]
     public ?int $sprintScope = null;
 
     public string $taskSearch = '';
@@ -81,9 +83,16 @@ class ProjectBoard extends Component
 
     public function setSprintScope($sprintId): void
     {
-        $sprintId = $sprintId === '' ? null : $sprintId;
+        $sprintId = $sprintId === '' ? null : (int) $sprintId;
 
-        $this->sprintScope = $sprintId ? (int) $sprintId : null;
+        if ($sprintId !== null &&
+            ! $this->projet->sprints->contains('id_sprint', $sprintId)
+        ) {
+            return;
+        }
+
+        $this->sprintScope = $sprintId;
+
         $this->loadData();
     }
 
