@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
 
 class Projet extends Model
 {
@@ -37,10 +38,21 @@ class Projet extends Model
         return $this->hasOne(Sprint::class, 'id_projet', 'id_projet')->orderBy('start_date', 'asc');
     }
 
-    public function currentSprint() {
+    public function currentSprint()
+    {
         return $this->hasOne(Sprint::class, 'id_projet', 'id_projet')
             ->whereDate('start_date', '<=', now())
-            ->whereRaw('DATE_ADD(start_date, INTERVAL duree DAY) > CURDATE()')
+            ->whereRaw("
+                DATE_ADD(
+                    start_date,
+                    INTERVAL (
+                        CASE
+                            WHEN duree BETWEEN 1 AND 6 THEN duree * 7
+                            ELSE duree
+                        END
+                    ) - 1 DAY
+                ) >= CURDATE()
+            ")
             ->orderBy('start_date', 'desc');
     }
 

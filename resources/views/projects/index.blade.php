@@ -98,13 +98,23 @@
             <tbody>
             @forelse ($projets as $projet)
                 <tr class="bg-white">
+                    @php
+                        $isOwned = auth()->check() && $projet->owner_id === auth()->user()->id_utilisateur;
+                    @endphp
                     <td class="py-3 px-3 text-center border-t border-secondary-200">
                         <label class="inline-flex items-center justify-center cursor-pointer select-none">
                             <input
                                 type="checkbox"
                                 class="sr-only peer"
                                 :checked="$store.selection.id === @js($projet->id_projet)"
-                                @change="$store.selection.id = $event.target.checked ? @js($projet->id_projet) : null"
+                                @change="
+                                const owned = {{ $isOwned ? 'true' : 'false' }};
+                                if (!owned) {
+                                    $store.selection.id = null;
+                                    $event.target.checked = false;
+                                    return;
+                                }
+                                $store.selection.id = $event.target.checked ? @js($projet->id_projet) : null"
                             >
                             <span class="block w-3.5 h-3.5 rounded-sm border border-gray-300 bg-gray-100
                                     peer-checked:bg-secondary-700 peer-checked:border-secondary-700"></span>
