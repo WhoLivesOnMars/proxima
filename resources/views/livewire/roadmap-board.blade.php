@@ -6,12 +6,12 @@
 >
     <div class="relative" x-data="{open:false}">
         <button type="button"
-                id="project-select-button"
+                id="project-switcher-button"
                 class="inline-flex items-center gap-1 font-bold text-xl uppercase tracking-wide"
                 @click="open = !open"
                 :aria-expanded="open.toString()"
                 aria-haspopup="listbox"
-                aria-controls="project-select-list"
+                aria-controls="project-switcher-list"
         >
             {{ $currentProject?->nom ?? 'Select project' }}
             <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M5.25 7.5 10 12.25 14.75 7.5h-9.5Z"/></svg>
@@ -21,9 +21,9 @@
                 x-transition
                 @click.outside="open = false"
                 class="absolute mt-2 w-56 bg-white rounded-md shadow border z-30"
-                id="project-select-list"
+                id="project-switcher-list"
                 role="listbox"
-                aria-labelledby="project-select-button
+                aria-labelledby="project-switcher-button"
         >
             @foreach($projects as $proj)
                 <button type="button"
