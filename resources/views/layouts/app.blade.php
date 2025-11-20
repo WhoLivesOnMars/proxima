@@ -35,9 +35,9 @@
     class="h-dvh bg-background text-dark"
 >
     <div class="grid h-full"
-        style="grid-template-rows: auto 1fr; grid-template-columns: auto 1fr;">
+        style="grid-template-rows: auto 1fr auto; grid-template-columns: auto 1fr;">
 
-        <aside class="row-span-2 col-[1] h-full">
+        <aside class="row-span-3 col-[1] h-full">
             <div class="h-full transition-[width] duration-300 ease-in-out"
                 style="width: var(--aside-initial-width, 5rem)"
                 :style="`width: ${$store.sidebar.collapsed ? '5rem' : '16rem'}`">
@@ -46,7 +46,10 @@
         </aside>
 
         <header class="py-3 px-4 flex items-center bg-primary-100 backdrop-blur">
-            <div class="text-xl font-bold select-none">PROXIMA</div>
+            <a href="{{ url('/') }}"
+                    class="text-xl font-bold select-none">
+                    PROXIMA
+            </a>
 
             <div class="ml-auto flex items-center gap-4">
                 @auth
@@ -64,6 +67,25 @@
 
             {{ $slot }}
         </main>
+
+        <footer class="col-[2] row-[3] bg-surface">
+            <div class="max-w-5xl mx-auto px-6 py-3">
+                <nav class="flex items-center justify-center gap-10 text-xs text-accent">
+                    <a href="{{ route('site.map') }}" class="hover:underline">
+                        Site map
+                    </a>
+                    <a href="{{ route('legal.notice') }}" class="hover:underline">
+                        Legal notice
+                    </a>
+                    <a href="{{ route('privacy.policy') }}" class="hover:underline">
+                        GDPR
+                    </a>
+                    <a href="{{ route('accessibility') }}" class="hover:underline">
+                        Accessibility
+                    </a>
+                </nav>
+            </div>
+        </footer>
     </div>
     @livewireScripts
 

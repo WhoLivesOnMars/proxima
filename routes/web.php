@@ -20,6 +20,11 @@ Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::view('/site-map', 'legal.site-map')->name('site.map');
+Route::view('/legal-notice', 'legal.legal-notice')->name('legal.notice');
+Route::view('/privacy-policy', 'legal.privacy-policy')->name('privacy.policy');
+Route::view('/accessibility', 'legal.accessibility')->name('accessibility');
+
 Route::get('/invites/{token}', [ProjectInvitationController::class, 'accept'])
     ->name('invites.accept');
 
