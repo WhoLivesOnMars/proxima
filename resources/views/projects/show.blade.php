@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="$projet->nom">
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-2xl">

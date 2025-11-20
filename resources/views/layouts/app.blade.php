@@ -6,7 +6,13 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>
+        @if (isset($title))
+            {{ $title }} - {{ config('app.name', 'PROXIMA') }}
+        @else
+            {{ config('app.name', 'PROXIMA') }}
+        @endif
+    </title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -40,7 +46,7 @@
         </aside>
 
         <header class="py-3 px-4 flex items-center bg-primary-100 backdrop-blur">
-            <div class="text-xl font-semibold select-none">Logo</div>
+            <div class="text-xl font-bold select-none">PROXIMA</div>
         </header>
 
         <main class="col-[2] row-[2] bg-surface overflow-y-auto p-6">

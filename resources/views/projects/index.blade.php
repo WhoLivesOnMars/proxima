@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout title="Projects">
     <x-slot name="header">
         <x-page.actions
             :create-href="route('projects.create')"
