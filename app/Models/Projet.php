@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
 class Projet extends Model
 {
+    use HasFactory;
+
     protected $table = 'projet';
     protected $primaryKey = 'id_projet';
     public $incrementing = true;

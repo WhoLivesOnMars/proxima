@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
 class Sprint extends Model
 {
+    use HasFactory;
+
     protected $table = 'sprint';
     protected $primaryKey = 'id_sprint';
     public $timestamps = false;

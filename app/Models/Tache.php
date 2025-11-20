@@ -4,9 +4,12 @@ namespace App\Models;
 
 use App\Services\NotificationService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Tache extends Model
 {
+    use HasFactory;
+
     protected $table = 'tache';
     protected $primaryKey = 'id_tache';
 
