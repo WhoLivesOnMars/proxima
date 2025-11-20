@@ -44,14 +44,21 @@
         });
     "
     @keydown.window.escape="closeMenu()"
+    role="main"
+    aria-label="Kanban board for project {{ $currentProject?->nom ?? '' }}"
     class="space-y-6"
 >
     <div class="flex items-end justify-between">
         <div class="space-y-1">
             <div class="relative" x-data="{open:false}">
                 <button type="button"
+                        id="project-switcher"
                         class="inline-flex items-center gap-1 font-bold text-xl uppercase tracking-wide"
-                        @click="open = !open">
+                        @click="open = !open"
+                        :aria-expanded="open.toString()"
+                        aria-haspopup="listbox"
+                        aria-controls="project-switcher-list"
+                >
                     {{ $currentProject?->nom ?? 'Select project' }}
                     <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.25 7.5 10 12.25 14.75 7.5h-9.5Z"/></svg>
                 </button>
@@ -59,9 +66,15 @@
                 <div x-show="open"
                      x-transition
                      @click.outside="open = false"
-                     class="absolute mt-2 w-56 bg-white rounded-md shadow border z-30">
+                     class="absolute mt-2 w-56 bg-white rounded-md shadow border z-30"
+                     role="listbox"
+                     id="project-switcher-list"
+                     aria-labelledby="project-switcher"
+                >
                     @foreach($projects as $proj)
                         <button type="button"
+                                role="option"
+                                aria-selected="{{ $currentProject && $currentProject->id_projet === $proj->id_projet ? 'true' : 'false' }}"
                                 wire:click="selectProject({{ $proj->id_projet }})"
                                 @click="open = false"
                                 class="w-full text-left px-4 py-2 text-sm hover:bg-slate-100 {{ $currentProject && $currentProject->id_projet === $proj->id_projet ? 'font-semibold' : '' }}">
@@ -79,14 +92,22 @@
         <div class="relative">
             <button type="button"
                     class="inline-flex items-center gap-2 text-secondary-900"
-                    @click="openFilter = !openFilter">
-                <x-heroicon-o-funnel class="w-5 h-5" />
+                    @click="openFilter = !openFilter"
+                    :aria-expanded="openFilter.toString()"
+                    aria-haspopup="dialog"
+                    aria-controls="task-filter-panel"
+            >
+                <x-heroicon-o-funnel class="w-5 h-5" aria-hidden="true" />
                 <span>Filter</span>
             </button>
 
             <div x-show="openFilter"
                  x-transition
                  @click.outside="openFilter = false"
+                 id="task-filter-panel"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-label="Task filters"
                  class="absolute right-0 mt-2 w-[28rem] bg-white rounded-md shadow border p-4 z-50">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -145,13 +166,13 @@
         @endphp
 
         @foreach($columns as $code => $meta)
-            <div class="min-w-0">
+            <div class="min-w-0" role="region" aria-label="{{ $meta['label'] }} column">
                 <div class="rounded-t-xl px-4 py-1.5 flex items-center justify-between"
                      style="background-color: {{ $meta['color'] }};">
                     <div class="text-white font-semibold text-sm">
                         {{ $meta['label'] }}
                     </div>
-                    <div class="flex items-center gap-1 text-xs text-white/90">
+                    <div class="flex items-center gap-1 text-xs text-white/90" aria-label="Number of tasks in {{ $meta['label'] }}">
                         <span>Tasks</span>
                         <span class="inline-flex items-center justify-center min-w-6 h-6 rounded-full bg-white/20 text-white text-xs font-semibold">
                             {{ count($tasksByStatus[$code] ?? []) }}
@@ -161,6 +182,7 @@
 
                 <div
                     class="pt-3 space-y-3"
+                    role="list"
                     @dragover.prevent
                     @drop.prevent="
                         if (draggedId) {
@@ -206,7 +228,9 @@
                             class="w-full bg-white rounded-lg shadow-sm px-3 py-2.5 space-y-2 border border-slate-100 hover:shadow-md transition"
                             :class="openMenuId === {{ $task->id_tache }} ? 'relative z-40' : ''"
                             data-assignee="{{ $task->assignee ? e(trim(($task->assignee->prenom ?? '').' '.($task->assignee->nom ?? ''))) : '—' }}"
-                        >
+                            role="listitem"
+                            aria-label="Task {{ $task->titre }}"
+                            >
                             <div class="flex items-start justify-between">
                                 <div class="h-5 flex items-center w-full text-[11px] text-slate-400 leading-none">
                                     {{ $task->epic?->nom ?? '—' }}
@@ -216,13 +240,16 @@
                                         type="button"
                                         class="p-1 rounded hover:bg-slate-100 focus:outline-none"
                                         @click.stop="openMenu({{ $task->id_tache }}, $event.target.closest('div[draggable]'))"
+                                        aria-haspopup="menu"
+                                        aria-label="Open actions for task {{ $task->titre }}"
                                     >
-                                        <x-heroicon-o-ellipsis-horizontal class="w-5 h-5 text-slate-400" />
+                                        <x-heroicon-o-ellipsis-horizontal class="w-5 h-5 text-slate-400" aria-hidden="true" />
                                     </button>
                                 @endif
                             </div>
 
                             <input
+                                id="task-title-{{ $task->id_tache }}"
                                 type="text"
                                 value="{{ $task->titre }}"
                                 class="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 p-0 text-sm font-semibold text-slate-900"
@@ -244,7 +271,7 @@
 
                             <div class="flex items-center justify-between mt-1">
                                 <label class="inline-flex items-center gap-1 text-[11px] text-slate-500">
-                                    <x-heroicon-o-clock class="w-3.5 h-3.5" />
+                                    <x-heroicon-o-clock class="w-3.5 h-3.5" aria-hidden="true" />
                                     <input
                                         type="date"
                                         value="{{ $task->deadline ? $task->deadline->format('Y-m-d') : '' }}"
@@ -278,14 +305,17 @@
         <div class="absolute z-50 flex flex-col gap-1"
             :style="`top:${menuTop}px; left:${menuLeft}px;`"
             @click.outside="closeMenu()"
+            role="menu"
+            aria-label="Task actions"
             tabindex="-1"
         >
             <button
                 type="button"
+                role="menuitem"
                 class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md text-xs text-slate-700 hover:bg-slate-200 transition"
                 @click="$wire.openCard(openMenuId); closeMenu();"
             >
-                <x-heroicon-o-arrow-top-right-on-square class="w-4 h-4" />
+                <x-heroicon-o-arrow-top-right-on-square class="w-4 h-4" aria-hidden="true" />
                 <span>Open card</span>
             </button>
 
@@ -382,21 +412,30 @@
         x-transition
         x-cloak
         class="fixed inset-0 z-[120] flex items-center justify-center"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="task-edit-title"
         @keydown.window.escape="modalOpen=false"
         >
         <div class="absolute inset-0 bg-slate-900/40" @click="modalOpen=false"></div>
 
-        <div class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-5 z-[130]">
+        <div class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-5 z-[130]"
+            x-init="$watch('modalOpen', v => {
+                if (v) {
+                    $nextTick(() => $el.querySelector('#task-title-input')?.focus());
+                }
+            })"
+        >
             <div class="flex justify-end">
-            <button class="p-1 rounded hover:bg-slate-100" @click="modalOpen=false">
-                <x-heroicon-o-x-mark class="w-5 h-5 text-slate-500"/>
+            <button class="p-1 rounded hover:bg-slate-100 focus-visible:ring focus-visible:ring-primary-500" @click="modalOpen=false" aria-label="Close dialog">
+                <x-heroicon-o-x-mark class="w-5 h-5 text-slate-500" aria-hidden="true" />
             </button>
             </div>
 
             <div class="space-y-4">
               <div>
-                  <label class="block text-xs text-slate-500 mb-1">Title</label>
-                  <input type="text" class="w-full rounded border-slate-300" x-model="modalTitre">
+                  <label id="task-edit-title" class="block text-xs text-slate-500 mb-1">Title</label>
+                  <input id="task-title-input" type="text" class="w-full rounded border-slate-300" x-model="modalTitre">
               </div>
 
               <div>

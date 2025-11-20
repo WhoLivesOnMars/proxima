@@ -35,8 +35,13 @@
 
         <div class="relative" x-data="{openScope:false}">
             <button type="button"
+                    id="sprint-scope-button"
                     class="inline-flex items-center gap-1 font-bold text-xl uppercase tracking-wide"
-                    @click="openScope = !openScope">
+                    @click="openScope = !openScope"
+                    :aria-expanded="openScope.toString()"
+                    aria-haspopup="listbox"
+                    aria-controls="sprint-scope-list"
+            >
                 {{ $currentSprint ? $currentSprint->nom : 'ALL' }}
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.25 7.5 10 12.25 14.75 7.5h-9.5Z"/></svg>
             </button>
@@ -44,8 +49,13 @@
             <div x-show="openScope"
                  x-transition
                  @click.outside="openScope = false"
+                 id="sprint-scope-list"
+                 role="listbox"
+                 aria-labelledby="sprint-scope-button"
                  class="absolute z-50 mt-2 w-48 rounded-md bg-white shadow border">
                 <button type="button"
+                        role="option"
+                        aria-selected="{{ $sprintScope === null ? 'true' : 'false' }}"
                         class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 {{ $sprintScope === null ? 'font-semibold' : '' }}"
                         @click="openScope = false"
                         wire:click="setSprintScope(null)">
@@ -53,6 +63,8 @@
                 </button>
                 @foreach($projet->sprints as $sp)
                     <button type="button"
+                            role="option"
+                            aria-selected="{{ $sprintScope === $sp->id_sprint ? 'true' : 'false' }}"
                             class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 {{ $sprintScope === $sp->id_sprint ? 'font-semibold' : '' }}"
                             @click="openScope = false"
                             wire:click="setSprintScope({{ $sp->id_sprint }})">
@@ -64,7 +76,9 @@
 
         <div class="flex items-center gap-3">
             <div class="relative flex-none w-64 sm:w-72">
+                <label for="task-search" class="sr-only">Search tasks</label>
                 <input
+                    id="task-search"
                     type="search"
                     placeholder="Search tasks"
                     wire:model.defer="taskSearch"
@@ -73,20 +87,28 @@
                 />
                 <x-heroicon-o-magnifying-glass
                     class="w-5 h-5 absolute right-2 top-1/2 -translate-y-1/2 text-primary-500"
+                    aria-hidden="true"
                 />
             </div>
 
             <div class="relative">
                 <button type="button"
                         class="inline-flex items-center gap-2 text-secondary-900"
-                        @click="openFilter = !openFilter">
-                    <x-heroicon-o-funnel class="w-5 h-5" />
+                        @click="openFilter = !openFilter"
+                        :aria-expanded="openFilter.toString()"
+                        aria-haspopup="dialog"
+                        aria-controls="task-filter-panel">
+                    <x-heroicon-o-funnel class="w-5 h-5" aria-hidden="true" />
                     <span>Filter</span>
                 </button>
 
                 <div x-show="openFilter"
                     x-transition
                     @click.outside="openFilter = false"
+                    id="task-filter-panel"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Task filters"
                     class="absolute right-0 mt-2 w-[28rem] bg-white rounded-md shadow border p-4 z-50">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -137,14 +159,17 @@
 
     <div class="overflow-x-auto rounded-md">
         <table class="w-full text-sm border-separate border-spacing-0">
+            <caption class="sr-only">
+                Tasks grouped by sprint and epic
+            </caption>
             <thead class="bg-secondary-100 text-secondary-900">
             <tr>
                 <th class="w-10"></th>
-                <th class="py-2 px-3 text-left font-semibold underline border-r border-secondary-200">Title</th>
-                <th class="py-2 px-3 text-center font-semibold underline border-r border-secondary-200">Start date</th>
-                <th class="py-2 px-3 text-center font-semibold underline border-r border-secondary-200">End date</th>
-                <th class="py-2 px-3 text-center font-semibold underline border-r border-secondary-200">Assignee</th>
-                <th class="py-2 px-3 text-center font-semibold underline border-r border-secondary-200">Status</th>
+                <th scope="col" class="py-2 px-3 text-left font-semibold underline border-r border-secondary-200">Title</th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold underline border-r border-secondary-200">Start date</th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold underline border-r border-secondary-200">End date</th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold underline border-r border-secondary-200">Assignee</th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold underline border-r border-secondary-200">Status</th>
                 <th class="w-10"></th>
             </tr>
             </thead>
@@ -180,8 +205,12 @@
                         }
                     ">
                     <td class="py-3 px-3 text-center border-t border-secondary-200">
-                        <button @click="spOpen[{{ $sprint->id_sprint }}] = !spOpen[{{ $sprint->id_sprint }}]"
-                                class="inline-flex w-5 h-5 items-center justify-center rounded border">
+                        <button
+                                @click="spOpen[{{ $sprint->id_sprint }}] = !spOpen[{{ $sprint->id_sprint }}]"
+                                class="inline-flex w-5 h-5 items-center justify-center rounded border"
+                                :aria-expanded="spOpen[{{ $sprint->id_sprint }}] ? 'true' : 'false'"
+                                aria-label="Toggle sprint {{ $sprint->nom }}"
+                        >
                             <span x-text="spOpen[{{ $sprint->id_sprint }}] ? '−' : '+'"></span>
                         </button>
                     </td>
@@ -243,8 +272,12 @@
                             }
                         ">
                         <td class="py-3 px-3 text-center border-t border-secondary-200">
-                            <button @click="epOpen[{{ $epic->id_epic }}] = !epOpen[{{ $epic->id_epic }}]"
-                                    class="inline-flex w-5 h-5 items-center justify-center rounded border">
+                            <button
+                                    @click="epOpen[{{ $epic->id_epic }}] = !epOpen[{{ $epic->id_epic }}]"
+                                    class="inline-flex w-5 h-5 items-center justify-center rounded border"
+                                    :aria-expanded="epOpen[{{ $epic->id_epic }}] ? 'true' : 'false'"
+                                    aria-label="Toggle epic {{ $epic->nom }}"
+                            >
                                 <span x-text="epOpen[{{ $epic->id_epic }}] ? '−' : '+'"></span>
                             </button>
                         </td>
@@ -262,7 +295,12 @@
                             @if($canDeleteItems)
                                 <x-dropdown align="right" width="48">
                                     <x-slot name="trigger">
-                                        <button type="button" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-secondary-100">
+                                        <button
+                                            type="button"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-secondary-100"
+                                            aria-haspopup="menu"
+                                            aria-label="Sprint actions"
+                                        >
                                             <x-heroicon-o-ellipsis-vertical class="w-5 h-5"/>
                                         </button>
                                     </x-slot>

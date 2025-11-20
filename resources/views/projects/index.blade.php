@@ -71,27 +71,38 @@
     </div>
 
     @if (session('ok'))
-        <div class="mb-4 rounded bg-primary-500/10 border border-primary-500/20 px-4 py-2">
+        <div class="mb-4 rounded bg-primary-500/10 border border-primary-500/20 px-4 py-2"
+            role="status"
+            aria-live="polite"
+        >
             {{ session('ok') }}
         </div>
     @endif
 
     @if (session('members_warning'))
-        <div class="mb-2 rounded bg-yellow-100 border border-yellow-300 px-4 py-2 text-sm text-yellow-900">
+        <div class="mb-2 rounded bg-yellow-100 border border-yellow-300 px-4 py-2 text-sm text-yellow-900"
+            role="alert"
+            aria-live="assertive"
+        >
             {{ session('members_warning') }}
         </div>
     @endif
 
     <div class="overflow-x-auto rounded-md">
         <table class="w-full text-sm border-separate border-spacing-0">
+            <caption class="sr-only">
+                List of projects with status, start date, current sprint and visibility
+            </caption>
             <thead class="bg-secondary-100 text-secondary-900">
             <tr>
-                <th class="w-10"></th>
-                <th class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Project</th>
-                <th class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Status</th>
-                <th class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Start date</th>
-                <th class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Current sprint</th>
-                <th class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Visibility</th>
+                <th scope="col" class="w-10">
+                    <span class="sr-only">Select project</span>
+                </th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Project</th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Status</th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Start date</th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Current sprint</th>
+                <th scope="col" class="py-2 px-3 text-center font-semibold border-r border-secondary-200">Visibility</th>
             </tr>
             </thead>
 
@@ -103,6 +114,9 @@
                     @endphp
                     <td class="py-3 px-3 text-center border-t border-secondary-200">
                         <label class="inline-flex items-center justify-center cursor-pointer select-none">
+                            <span class="sr-only">
+                                Select project {{ $projet->nom }}
+                            </span>
                             <input
                                 type="checkbox"
                                 class="sr-only peer"

@@ -55,10 +55,17 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-            <div class="text-center text-sm font-semibold text-slate-900 mb-20">
+        <figure class="bg-white rounded-2xl shadow-sm p-6" aria-describedby="proj-bars-desc">
+            <figcaption class="text-center text-sm font-semibold text-slate-900 mb-20">
                 Project progress statistics
-            </div>
+            </figcaption>
+
+            <p id="proj-bars-desc" class="sr-only">
+                {{ $stats['to_do'] }} tasks to do,
+                {{ $stats['in_progress'] }} in progress,
+                {{ $stats['done'] }} done,
+                {{ $stats['overdue'] }} overdue.
+            </p>
 
             <div class="mt-4 h-56 px-10 pb-4 flex items-end justify-between">
                 <div class="flex flex-col items-center flex-1">
@@ -94,12 +101,19 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </figure>
 
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-            <div class="text-center text-sm font-semibold text-slate-900 mb-20">
+        <figure class="bg-white rounded-2xl shadow-sm p-6">
+            <figcaption class="text-center text-sm font-semibold text-slate-900 mb-20">
                 Pie chart by status
-            </div>
+            </figcaption>
+
+            <p id="proj-pie-desc" class="sr-only">
+                {{ $pctTodo }} percent of tasks are to do,
+                {{ $pctInProgress }} percent are in progress,
+                {{ $pctDone }} percent are done.
+                Total tasks: {{ $totalTasks }}.
+            </p>
 
             <div class="mt-4 flex flex-col md:flex-row items-center justify-center gap-16">
                 <div class="relative w-40 h-40 flex items-center justify-center">
@@ -139,7 +153,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </figure>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">

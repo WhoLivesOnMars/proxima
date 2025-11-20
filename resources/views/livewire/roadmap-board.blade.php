@@ -6,18 +6,29 @@
 >
     <div class="relative" x-data="{open:false}">
         <button type="button"
+                id="project-select-button"
                 class="inline-flex items-center gap-1 font-bold text-xl uppercase tracking-wide"
-                @click="open = !open">
+                @click="open = !open"
+                :aria-expanded="open.toString()"
+                aria-haspopup="listbox"
+                aria-controls="project-select-list"
+        >
             {{ $currentProject?->nom ?? 'Select project' }}
-            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.25 7.5 10 12.25 14.75 7.5h-9.5Z"/></svg>
+            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M5.25 7.5 10 12.25 14.75 7.5h-9.5Z"/></svg>
         </button>
 
         <div x-show="open"
                 x-transition
                 @click.outside="open = false"
-                class="absolute mt-2 w-56 bg-white rounded-md shadow border z-30">
+                class="absolute mt-2 w-56 bg-white rounded-md shadow border z-30"
+                id="project-select-list"
+                role="listbox"
+                aria-labelledby="project-select-button
+        >
             @foreach($projects as $proj)
                 <button type="button"
+                        role="option"
+                        aria-selected="{{ $currentProject && $currentProject->id_projet === $proj->id_projet ? 'true' : 'false' }}"
                         wire:click="selectProject({{ $proj->id_projet }})"
                         @click="open = false"
                         class="w-full text-left px-4 py-2 text-sm hover:bg-slate-100 {{ $currentProject && $currentProject->id_projet === $proj->id_projet ? 'font-semibold' : '' }}">
@@ -154,6 +165,7 @@
                                             "
                                             wire:click="openCard({{ $task->id_tache }})"
                                             @click="modalOpen = true"
+                                            aria-label="Task {{ $task->titre }} in sprint {{ $sprint->nom }}, status {{ $task->status }}"
                                         >
                                             <span class="truncate">{{ $task->titre }}</span>
                                         </button>
@@ -179,12 +191,21 @@
           class="fixed inset-0 z-[120] flex items-center justify-center"
           @keydown.window.escape="modalOpen=false"
         >
-          <div class="absolute inset-0 bg-slate-900/40" @click="modalOpen=false"></div>
+          <div class="absolute inset-0 bg-slate-900/40" @click="modalOpen=false" aria-hidden="true"></div>
 
-          <div class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-5 z-[130]">
+          <div
+            class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-5 z-[130]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="task-modal-title"
+          >
             <div class="flex justify-end">
-              <button class="p-1 rounded hover:bg-slate-100" @click="modalOpen=false">
-                <x-heroicon-o-x-mark class="w-5 h-5 text-slate-500"/>
+              <button
+                class="p-1 rounded hover:bg-slate-100"
+                @click="modalOpen=false"
+                aria-label="Close task details"
+              >
+                <x-heroicon-o-x-mark class="w-5 h-5 text-slate-500" aria-hidden="true" />
               </button>
             </div>
 

@@ -2,15 +2,16 @@
     $collapsed = '$store.sidebar.collapsed';
 @endphp
 
-<nav class="h-full bg-secondary-700 border-r flex flex-col select-none relative">
+<nav class="h-full bg-secondary-700 border-r flex flex-col select-none relative" aria-label="Main navigation">
     <button type="button"
         class="w-full h-14 flex items-center px-7 hover:bg-secondary-500"
-        @click="$store.sidebar.toggle()">
+        @click="$store.sidebar.toggle()"
+        aria-label="Toggle sidebar">
         <template x-if="{{ $collapsed }}">
-            <x-heroicon-o-bars-3 class="w-7 h-7 text-light"/>
+            <x-heroicon-o-bars-3 class="w-7 h-7 text-light" aria-hidden="true" />
         </template>
         <template x-if="!{{ $collapsed }}">
-            <x-heroicon-o-x-mark class="w-7 h-7 text-light"/>
+            <x-heroicon-o-x-mark class="w-7 h-7 text-light" aria-hidden="true" />
         </template>
     </button>
 
@@ -31,7 +32,7 @@
                     class="group flex gap-2 items-center px-5 py-3 text-base hover:bg-secondary-500">
                     <span class="inline-flex w-10 justify-center shrink-0">
                         @php $icon = 'heroicon-o-'.$it['icon']; @endphp
-                        <x-dynamic-component :component="$icon" class="w-7 h-7 text-primary-300"/>
+                        <x-dynamic-component :component="$icon" class="w-7 h-7 text-primary-300" aria-hidden="true"/>
                     </span>
 
                     <span x-cloak
@@ -56,8 +57,14 @@
         <div class="flex-1 flex items-center gap-2 relative"
             x-data="{show: false}" @click.outside="show = false" @keydown.escape.window="show = false">
 
-            <button type="button" class="shrink-0" @click="show = !show"
-                aria-haspopup="menu" :aria-expanded="show">
+            <button
+                type="button"
+                class="shrink-0"
+                @click="show = !show"
+                aria-haspopup="menu"
+                :aria-expanded="show.toString()"
+                aria-controls="user-menu"
+                aria-label="Open user menu">
                 <x-user-initials :first="$first" :last="$last" class="w-9 h-9 text-sm"/>
             </button>
             <span x-cloak
@@ -66,15 +73,25 @@
                 {{ Str::limit(trim($first.' '.$last), 24) }}
             </span>
 
-            <div x-cloak x-show="show" x-transition.origin-bottom-left
+            <div
+                x-cloak
+                x-show="show"
+                x-transition.origin-bottom-left
+                id="user-menu"
+                role="menu"
                 class="absolute left-full ml-2 bottom-3 w-44 bg-white text-secondary-900 shadow-lg ring-1 ring-secondary-500/20 z-50">
                 <a href="{{ route('profile.edit') }}"
-                    class="block px-3 py-2 hover:bg-primary-100 transition-colors">Profile</a>
+                    class="block px-3 py-2 hover:bg-primary-100 transition-colors"
+                    role="menuitem"
+                >
+                    Profile
+                </a>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
                         class="block w-full text-left px-3 py-2 text-red-600 hover:bg-primary-100 transition-colors"
+                        role="menuitem"
                         title="{{ __('Log out') }}">
                         Log out
                     </button>
@@ -85,9 +102,11 @@
         <form method="POST" action="{{ route('logout') }}"
             :class="{{ $collapsed }} ? 'hidden' : 'block'">
             @csrf
-            <button type="submit"
-                    class="p-2 rounded hover:bg-secondary-500"
-                    title="{{ __('Log out') }}">
+            <button
+                type="submit"
+                class="p-2 rounded hover:bg-secondary-500"
+                aria-label="{{ __('Log out') }}"
+                title="{{ __('Log out') }}">
                 <x-heroicon-o-arrow-right-on-rectangle class="w-6 h-6 text-primary-300"/>
             </button>
         </form>

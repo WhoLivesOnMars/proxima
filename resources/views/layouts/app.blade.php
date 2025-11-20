@@ -34,10 +34,14 @@
     x-data
     class="h-dvh bg-background text-dark"
 >
+    <a href="#main-content"
+       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-white focus:text-black focus:px-3 focus:py-2 focus:rounded">
+        Skip to main content
+    </a>
     <div class="grid h-full"
         style="grid-template-rows: auto 1fr auto; grid-template-columns: auto 1fr;">
 
-        <aside class="row-span-3 col-[1] h-full">
+        <aside class="row-span-3 col-[1] h-full" role="navigation" aria-label="Main navigation">
             <div class="h-full transition-[width] duration-300 ease-in-out"
                 style="width: var(--aside-initial-width, 5rem)"
                 :style="`width: ${$store.sidebar.collapsed ? '5rem' : '16rem'}`">
@@ -45,7 +49,7 @@
             </div>
         </aside>
 
-        <header class="py-3 px-4 flex items-center bg-primary-100 backdrop-blur">
+        <header class="py-3 px-4 flex items-center bg-primary-100 backdrop-blur" role="banner">
             <a href="{{ url('/') }}"
                     class="text-xl font-bold select-none">
                     PROXIMA
@@ -58,7 +62,11 @@
             </div>
         </header>
 
-        <main class="col-[2] row-[2] bg-surface overflow-y-auto p-6">
+        <main
+            id="main-content"
+            class="col-[2] row-[2] bg-surface overflow-y-auto p-6"
+            role="main"
+        >
             @isset($header)
                 <div class="mb-6">
                     {{ $header }}
@@ -68,9 +76,9 @@
             {{ $slot }}
         </main>
 
-        <footer class="col-[2] row-[3] bg-surface">
+        <footer class="col-[2] row-[3] bg-surface" role="contentinfo">
             <div class="max-w-5xl mx-auto px-6 py-3">
-                <nav class="flex items-center justify-center gap-10 text-xs text-accent">
+                <nav class="flex items-center justify-center gap-10 text-xs text-accent" aria-label="Footer links">
                     <a href="{{ route('site.map') }}" class="hover:underline">
                         Site map
                     </a>

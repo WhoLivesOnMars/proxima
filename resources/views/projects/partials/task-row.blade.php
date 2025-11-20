@@ -26,28 +26,41 @@
     <td class="py-3 px-3 border-t border-r border-secondary-200">
         <span class="inline-flex items-center gap-2 {{ $indentClass }}">
             <span class="inline-block w-6 h-6 rounded-md bg-green-200 text-green-700 text-xs font-bold grid place-items-center shadow-sm">T</span>
-            <input type="text" value="{{ $task->titre }}"
-                   x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'titre', $event.target.value)"
-                   @unless($isOwner) disabled @endunless
-                   class="border-0 bg-transparent text-sm outline-none focus:outline-none focus:ring-0 focus:border-transparent">
+
+            <label for="task-title-{{ $task->id_tache }}" class="sr-only">
+                Task title
+            </label>
+            <input
+                id="task-title-{{ $task->id_tache }}"
+                type="text"
+                value="{{ $task->titre }}"
+                x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'titre', $event.target.value)"
+                @unless($isOwner) disabled @endunless
+                class="border-0 bg-transparent text-sm outline-none focus:outline-none focus:ring-0 focus:border-transparent">
         </span>
     </td>
     <td class="py-3 px-3 text-center border-t border-r border-secondary-200">
-        <input type="date" value="{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('Y-m-d') : '' }}"
-               x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'start_date', $event.target.value)"
-               @unless($isOwner) disabled @endunless
-               class="border-0 bg-transparent text-sm text-center outline-none focus:outline-none focus:ring-0 focus:border-transparent">
+        <input
+            type="date"
+            value="{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('Y-m-d') : '' }}"
+            x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'start_date', $event.target.value)"
+            @unless($isOwner) disabled @endunless
+            aria-label="Task start date"
+            class="border-0 bg-transparent text-sm text-center outline-none focus:outline-none focus:ring-0 focus:border-transparent">
     </td>
     <td class="py-3 px-3 text-center border-t border-r border-secondary-200">
-        <input type="date" value="{{ $task->deadline ? \Carbon\Carbon::parse($task->deadline)->format('Y-m-d') : '' }}"
-               x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'deadline', $event.target.value)"
-               @unless($isOwner) disabled @endunless
-               class="border-0 bg-transparent text-sm text-center outline-none focus:outline-none focus:ring-0 focus:border-transparent">
+        <input
+            type="date" value="{{ $task->deadline ? \Carbon\Carbon::parse($task->deadline)->format('Y-m-d') : '' }}"
+            x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'deadline', $event.target.value)"
+            @unless($isOwner) disabled @endunless
+            aria-label="Task deadline"
+            class="border-0 bg-transparent text-sm text-center outline-none focus:outline-none focus:ring-0 focus:border-transparent">
     </td>
     <td class="py-3 px-3 text-center border-t border-r border-secondary-200">
         <select
             x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'id_utilisateur', $event.target.value)"
             @unless($isOwner) disabled @endunless
+            aria-label="Task assignee"
             class="border-0 bg-transparent text-sm outline-none focus:outline-none focus:ring-0 focus:border-transparent"
         >
             <option value=""></option>
@@ -65,6 +78,7 @@
         <select
             x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'status', $event.target.value)"
             @unless($canChangeStatusForTask) disabled @endunless
+            aria-label="Task status"
             class="border-0 bg-transparent text-sm outline-none focus:outline-none focus:ring-0 focus:border-transparent"
         >
             <option value="todo" @selected($task->status === 'todo')>To do</option>
@@ -76,8 +90,13 @@
         @if($canDelete ?? false)
             <x-dropdown align="right" width="48">
                 <x-slot name="trigger">
-                    <button type="button" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-secondary-100">
-                        <x-heroicon-o-ellipsis-vertical class="w-5 h-5"/>
+                    <button
+                        type="button"
+                        class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-secondary-100"
+                        aria-haspopup="menu"
+                        aria-label="Task actions for {{ $task->titre }}"
+                    >
+                        <x-heroicon-o-ellipsis-vertical class="w-5 h-5" aria-hidden="true" />
                     </button>
                 </x-slot>
                 <x-slot name="content">
