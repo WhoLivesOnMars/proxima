@@ -17,37 +17,40 @@
         @endif
     </button>
 
-    <div
-        x-cloak
-        x-show="open"
-        x-transition
-        @click.outside="open = false"
-        class="absolute right-0 mt-2 w-80 max-h-96 bg-white rounded-xl shadow-lg ring-1 ring-slate-200 overflow-hidden z-50"
-    >
-        <div class="px-3 py-2 border-b border-slate-100 text-xs font-semibold text-slate-600">
-            Notifications
-        </div>
+    <template x-teleport="body">
+        <div
+            x-cloak
+            x-show="open"
+            x-transition
+            @click.outside="open = false"
+            class="fixed right-6 top-16 w-80 max-h-96 bg-white rounded-xl shadow-lg
+                   ring-1 ring-slate-200 overflow-hidden z-[9999]"
+        >
+            <div class="px-3 py-2 border-b border-slate-100 text-xs font-semibold text-slate-600">
+                Notifications
+            </div>
 
-        <div class="max-h-80 overflow-y-auto text-sm">
-            @forelse($notifications as $notif)
-                <button
-                    type="button"
-                    class="w-full text-left px-3 py-2 flex flex-col gap-0.5 hover:bg-slate-50 {{ $notif->read_at ? 'text-slate-500' : 'text-slate-800 font-medium' }}"
-                    wire:click="markAsRead({{ $notif->id_notification }})"
-                >
-                    <div class="text-xs uppercase tracking-wide text-slate-400">
-                        {{ ucfirst(str_replace('_', ' ', $notif->type)) }}
+            <div class="max-h-80 overflow-y-auto text-sm">
+                @forelse($notifications as $notif)
+                    <button
+                        type="button"
+                        class="w-full text-left px-3 py-2 flex flex-col gap-0.5 hover:bg-slate-50 {{ $notif->read_at ? 'text-slate-500' : 'text-slate-800 font-medium' }}"
+                        wire:click="markAsRead({{ $notif->id_notification }})"
+                    >
+                        <div class="text-xs uppercase tracking-wide text-slate-400">
+                            {{ ucfirst(str_replace('_', ' ', $notif->type)) }}
+                        </div>
+                        <div>{{ $notif->message }}</div>
+                        <div class="text-[11px] text-slate-400">
+                            {{ $notif->created_at?->format('Y-m-d H:i') }}
+                        </div>
+                    </button>
+                @empty
+                    <div class="px-3 py-3 text-xs text-slate-500">
+                        No notifications yet.
                     </div>
-                    <div>{{ $notif->message }}</div>
-                    <div class="text-[11px] text-slate-400">
-                        {{ $notif->created_at?->format('Y-m-d H:i') }}
-                    </div>
-                </button>
-            @empty
-                <div class="px-3 py-3 text-xs text-slate-500">
-                    No notifications yet.
-                </div>
-            @endforelse
+                @endforelse
+            </div>
         </div>
-    </div>
+    </template>
 </div>

@@ -6,6 +6,15 @@
     $showCondition = isset($epic) && $epic
         ? "spOpen[{$sprint->id_sprint}] && epOpen[{$epic->id_epic}]"
         : "spOpen[{$sprint->id_sprint}]";
+
+    $indentClass = match($indent ?? 0) {
+        0 => '',
+        4 => 'pl-4',
+        6 => 'pl-6',
+        8 => 'pl-8',
+        12 => 'pl-12',
+        default => 'pl-6',
+    };
 @endphp
 
 <tr wire:key="{{ $key }}" class="bg-white"
@@ -15,7 +24,7 @@
     @dragend="draggedTask = null">
     <td class="py-3 px-3 text-center border-t border-secondary-200"></td>
     <td class="py-3 px-3 border-t border-r border-secondary-200">
-        <span class="inline-flex items-center gap-2 pl-{{ $indent }}">
+        <span class="inline-flex items-center gap-2 {{ $indentClass }}">
             <span class="inline-block w-6 h-6 rounded-md bg-green-200 text-green-700 text-xs font-bold grid place-items-center shadow-sm">T</span>
             <input type="text" value="{{ $task->titre }}"
                    x-on:change="$wire.updateField('task', {{ $task->id_tache }}, 'titre', $event.target.value)"
