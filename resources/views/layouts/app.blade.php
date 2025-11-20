@@ -47,6 +47,12 @@
 
         <header class="py-3 px-4 flex items-center bg-primary-100 backdrop-blur">
             <div class="text-xl font-bold select-none">PROXIMA</div>
+
+            <div class="ml-auto flex items-center gap-4">
+                @auth
+                    <livewire:notifications-bell />
+                @endauth
+            </div>
         </header>
 
         <main class="col-[2] row-[2] bg-surface overflow-y-auto p-6">
