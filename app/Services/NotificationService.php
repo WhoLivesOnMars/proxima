@@ -27,14 +27,12 @@ class NotificationService
             return null;
         }
 
-        $notification = Notification::firstOrCreate(
+        $notification = Notification::create(
             [
                 'id_utilisateur' => $user->id_utilisateur,
                 'id_projet' => $task->id_projet,
                 'id_tache' => $task->id_tache,
                 'type' => $type,
-            ],
-            [
                 'message' => $message,
                 'created_at'=> Carbon::now(),
             ]
