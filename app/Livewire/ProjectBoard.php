@@ -83,11 +83,15 @@ class ProjectBoard extends Component
 
     public function setSprintScope($sprintId): void
     {
+        if ($sprintId === null || $sprintId === '') {
+            $this->sprintScope = null;
+            $this->loadData();
+            return;
+        }
+
         $sprintId = $sprintId === '' ? null : (int) $sprintId;
 
-        if ($sprintId !== null &&
-            ! $this->projet->sprints->contains('id_sprint', $sprintId)
-        ) {
+        if (! $this->projet->sprints->contains('id_sprint', $sprintId)) {
             return;
         }
 
