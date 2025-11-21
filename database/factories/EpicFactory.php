@@ -18,9 +18,11 @@ class EpicFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = \Faker\Factory::create();
+
         return [
             'id_projet' => null,
-            'nom' => 'Epic '.$this->faker->numberBetween(1, 4),
+            'nom' => 'Epic ' . $faker->numberBetween(1, 4),
         ];
     }
 

@@ -19,16 +19,18 @@ class TacheFactory extends Factory
      */
     public function definition(): array
     {
-        $start = Carbon::now();
-        $deadline = $start->copy()->addDays(3);
+        $faker = \Faker\Factory::create();
+
+        $start = now();
+        $deadline = now()->addDays(3);
 
         return [
             'id_projet' => null,
             'id_epic' => null,
             'id_sprint' => null,
             'id_utilisateur' => null,
-            'titre' => $this->faker->sentence(4),
-            'description' => $this->faker->paragraph(),
+            'titre' => $faker->sentence(4),
+            'description' => $faker->paragraph(),
             'start_date' => $start->toDateString(),
             'deadline' => $deadline->toDateString(),
             'status' => 'todo',
