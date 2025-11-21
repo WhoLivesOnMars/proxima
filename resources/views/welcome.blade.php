@@ -67,7 +67,7 @@
                 <ul class="text-xs sm:text-[13px] text-slate-200/85 space-y-1.5 mb-8">
                     <li class="flex items-center gap-2">
                         <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                        Real-time task updates for all project members
+                        Task updates for all project members
                     </li>
                     <li class="flex items-center gap-2">
                         <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
