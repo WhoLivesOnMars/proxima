@@ -19,12 +19,10 @@ class UtilisateurFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = \Faker\Factory::create();
-
         return [
-            'nom'    => $faker->lastName(),
-            'prenom' => $faker->firstName(),
-            'email'  => $faker->unique()->safeEmail(),
+            'nom' => $this->faker->lastName(),
+            'prenom' => $this->faker->firstName(),
+            'email' => $this->faker->unique()->safeEmail(),
             'password' => bcrypt('password'),
         ];
     }

@@ -6,20 +6,25 @@ use App\Models\Projet;
 use App\Models\Utilisateur;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Projet>
+ */
 class ProjetFactory extends Factory
 {
     protected $model = Projet::class;
-
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
-        $faker = \Faker\Factory::create();
-
         return [
-            'nom'         => $faker->sentence(3),
-            'description' => $faker->paragraph(),
-            'owner_id'    => Utilisateur::factory(),
-            'status'      => 'active',
-            'visibility'  => 'private',
+            'nom' => $this->faker->sentence(3),
+            'description' => $this->faker->paragraph(),
+            'owner_id' => Utilisateur::factory(),
+            'status' => 'active',
+            'visibility' => 'private',
             'share_token' => null,
         ];
     }
@@ -28,9 +33,9 @@ class ProjetFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'nom'         => 'First Project',
+                'nom' => 'First Project',
                 'description' => 'Starter project created automatically to explore PROXIMA.',
-                'status'      => 'active',
+                'status' => 'active',
                 'visibility'  => 'private',
             ];
         });
