@@ -135,6 +135,10 @@ It demonstrates:
 - a modular approach to project management features
 - clean separation between models, factories, policies and components
 
+## Live Demo
+
+[Open PROXIMA](https://proxima-production.up.railway.app)
+
 ## Author
 
 Daria Khanina  
