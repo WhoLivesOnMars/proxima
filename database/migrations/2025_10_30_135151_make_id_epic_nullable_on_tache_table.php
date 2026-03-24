@@ -16,11 +16,12 @@ return new class extends Migration
             $table->dropForeign(['id_epic']);
         });
 
-        DB::statement('ALTER TABLE `tache` MODIFY `id_epic` BIGINT UNSIGNED NULL');
+        DB::statement('ALTER TABLE tache ALTER COLUMN id_epic DROP NOT NULL');
 
         Schema::table('tache', function (Blueprint $table) {
             $table->foreign('id_epic')
-                ->references('id_epic')->on('epic')
+                ->references('id_epic')
+                ->on('epic')
                 ->nullOnDelete();
         });
     }
@@ -34,11 +35,12 @@ return new class extends Migration
             $table->dropForeign(['id_epic']);
         });
 
-        DB::statement('ALTER TABLE `tache` MODIFY `id_epic` BIGINT UNSIGNED NOT NULL');
+        DB::statement('ALTER TABLE tache ALTER COLUMN id_epic SET NOT NULL');
 
         Schema::table('tache', function (Blueprint $table) {
             $table->foreign('id_epic')
-                ->references('id_epic')->on('epic')
+                ->references('id_epic')
+                ->on('epic')
                 ->restrictOnDelete();
         });
     }
