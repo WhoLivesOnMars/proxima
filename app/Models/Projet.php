@@ -46,15 +46,14 @@ class Projet extends Model
         return $this->hasOne(Sprint::class, 'id_projet', 'id_projet')
             ->whereDate('start_date', '<=', now())
             ->whereRaw("
-                DATE_ADD(
-                    start_date,
-                    INTERVAL (
-                        CASE
-                            WHEN duree BETWEEN 1 AND 6 THEN duree * 7
-                            ELSE duree
-                        END
-                    ) - 1 DAY
-                ) >= CURDATE()
+                (
+                    start_date
+                    + (CASE
+                        WHEN duree BETWEEN 1 AND 6 THEN duree * INTERVAL '7 day'
+                        ELSE duree * INTERVAL '1 day'
+                    ND)
+                    - INTERVAL '1 day'
+                ) >= CURRENT_DATE
             ")
             ->orderBy('start_date', 'desc');
     }

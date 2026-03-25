@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tache', function (Blueprint $t) {
-            $t->date('start_date')->nullable()->after('description');
-            $t->index(['id_sprint','start_date']);
+            $t->date('start_date')->nullable();
+            $t->index(['id_sprint', 'start_date']);
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('tache', function (Blueprint $t) {
-            $t->dropIndex(['tache_id_sprint_start_date_index']);
+            $t->dropIndex('tache_id_sprint_start_date_index');
             $t->dropColumn('start_date');
         });
     }
