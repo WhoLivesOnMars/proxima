@@ -48,10 +48,12 @@ class Projet extends Model
             ->whereRaw("
                 (
                     start_date
-                    + (CASE
-                        WHEN duree BETWEEN 1 AND 6 THEN duree * INTERVAL '7 day'
-                        ELSE duree * INTERVAL '1 day'
-                    ND)
+                    + (
+                        CASE
+                            WHEN duree BETWEEN 1 AND 6 THEN duree * INTERVAL '7 day'
+                            ELSE duree * INTERVAL '1 day'
+                        END
+                    )
                     - INTERVAL '1 day'
                 ) >= CURRENT_DATE
             ")
