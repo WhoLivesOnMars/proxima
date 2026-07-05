@@ -137,7 +137,7 @@ It demonstrates:
 
 ## Live Demo
 
-[Open PROXIMA](https://proxima-production.up.railway.app)
+[Open PROXIMA](https://proxima-rp8b.onrender.com/)
 
 ## Author
 
