@@ -93,7 +93,7 @@
             <caption class="sr-only">
                 List of projects with status, start date, current sprint and visibility
             </caption>
-            <thead class="bg-secondary-100 text-secondary-900">
+            <thead class="bg-primary-300  text-secondary-900">
             <tr>
                 <th scope="col" class="w-10">
                     <span class="sr-only">Select project</span>

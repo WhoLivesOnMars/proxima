@@ -103,11 +103,11 @@
                 @foreach($epics as $epic)
                     @php
                         $epicBgColors = [
-                            '#FFE4B8',
+                            '#c3c7ff',
                             '#C6F2FF',
-                            '#F6C6FF',
                             '#D7FFCB',
                             '#FFE1F0',
+                            '#a09adc',
                         ];
                         $bgColor = $epicBgColors[$loop->index % count($epicBgColors)];
                         $epicProgress = $this->getEpicProgress($epic->id_epic);
@@ -146,9 +146,9 @@
                                             if ($segment['width'] <= 0) continue;
 
                                             $statusStyle = match($task->status) {
-                                                'done' => 'background-color: rgba(31, 157, 143, 0.18); color:#1F9D8F;',
-                                                'in_progress' => 'background-color: rgba(54, 135, 190, 0.18); color:#3687BE;',
-                                                default => 'background-color: rgba(234, 78, 152, 0.18); color:#EA4E98;',
+                                                'done' => 'background-color: rgba(58, 200, 15, 0.18); color:#1F9D8F;',
+                                                'in_progress' => 'background-color: rgba(0, 117, 243, 0.18); color:#1e35ff;',
+                                                default => 'background-color: rgba(255, 30, 188, 0.18); color:#cd52fd;',
                                             };
 
                                             $top = $loop->index * 2.3;

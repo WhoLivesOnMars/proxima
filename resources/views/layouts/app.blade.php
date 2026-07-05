@@ -78,7 +78,7 @@
 
         <footer class="col-[2] row-[3] bg-surface" role="contentinfo">
             <div class="max-w-5xl mx-auto px-6 py-3">
-                <nav class="flex items-center justify-center gap-10 text-xs text-accent" aria-label="Footer links">
+                <nav class="flex items-center justify-center gap-10 text-xs text-secondary-500" aria-label="Footer links">
                     <a href="{{ route('site.map') }}" class="hover:underline">
                         Site map
                     </a>

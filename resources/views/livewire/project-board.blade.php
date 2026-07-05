@@ -162,7 +162,7 @@
             <caption class="sr-only">
                 Tasks grouped by sprint and epic
             </caption>
-            <thead class="bg-secondary-100 text-secondary-900">
+            <thead class="bg-primary-300 text-secondary-900">
             <tr>
                 <th class="w-10"></th>
                 <th scope="col" class="py-2 px-3 text-left font-semibold underline border-r border-secondary-200">Title</th>

@@ -158,9 +158,9 @@
     <div class="grid grid-cols-4 gap-8 items-start w-full">
         @php
             $columns = [
-                'todo' => ['label' => 'To do', 'color' => '#ea4e98'],
-                'in_progress' => ['label' => 'In progress', 'color' => '#3687be'],
-                'done' => ['label' => 'Done', 'color' => '#1f9d8f'],
+                'todo' => ['label' => 'To do', 'color' => '#cd52fd'],
+                'in_progress' => ['label' => 'In progress', 'color' => '#4b3eda'],
+                'done' => ['label' => 'Done', 'color' => '#87bc00'],
                 'for_approval' => ['label' => 'For approval', 'color' => '#969ba1'],
             ];
         @endphp
